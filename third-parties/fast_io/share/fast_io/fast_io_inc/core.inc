@@ -53,6 +53,8 @@ using ::fast_io::manipulators::scalar_manip_t;
 using ::fast_io::manipulators::member_function_pointer_holder_t;
 using ::fast_io::manipulators::whole_get_t;
 
+using ::fast_io::manipulators::boolalpha;
+
 using ::fast_io::manipulators::pointervw;
 using ::fast_io::manipulators::handlevw;
 using ::fast_io::manipulators::methodvw;

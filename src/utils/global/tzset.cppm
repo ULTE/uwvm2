@@ -37,9 +37,6 @@ export namespace utils::global
     {
         /// @brief      The tzset() function initializes the tzname variable from the TZ environment variable.
         /// @see        tzset(3)
-        UWVM_GNU_COLD inline tz_set_s() noexcept
-        {
-            ::fast_io::posix_tzset();
-        }
+        UWVM_GNU_COLD inline tz_set_s() noexcept { ::fast_io::posix_tzset(); }
     };
-}  // namespace uwvm::global
+}  // namespace utils::global

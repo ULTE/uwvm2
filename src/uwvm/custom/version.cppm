@@ -29,7 +29,7 @@ export module uwvm.custom:version;
 
 import fast_io;
 
-import utils.version;
+export import utils.version;  // print defined method should be export
 
 export namespace uwvm::custom
 {
@@ -38,4 +38,4 @@ export namespace uwvm::custom
 #else
     inline constexpr ::utils::version uwvm_version{0, 0, 0, 0};
 #endif
-}  // namespace uwvm
+}  // namespace uwvm::custom

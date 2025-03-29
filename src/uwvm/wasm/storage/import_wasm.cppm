@@ -5,9 +5,11 @@
  ********************************************************/
 
 /**
+ * @brief       Imported wasm modules
+ * @details     "--wasm-load-wasm" or "-Wlw"
  * @author      MacroModel
  * @version     2.0.0
- * @date        2025-03-27
+ * @date        2025-03-28
  * @copyright   APL-2 License
  */
 
@@ -21,5 +23,14 @@
  ****************************************/
 
 module;
-export module uwvm.run;
-export import :run;
+
+export module uwvm.wasm.storage:import_wasm;
+
+import fast_io;
+
+export namespace uwvm::wasm::storage
+{
+    inline ::fast_io::vector<::fast_io::native_file_loader> import_wasm_file{};
+
+    // TODO: import_wasm_module // The result of parsing the wasm is used to add the import module directly.
+}  // namespace uwvm::wasm::storage

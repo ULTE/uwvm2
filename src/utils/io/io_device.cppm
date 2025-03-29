@@ -40,7 +40,7 @@ import fast_io;
 export namespace utils
 {
     // io does not add meaningless namespaces.
-    
+
 #ifndef __AVR__
 
     /// @brief      native stdout
@@ -103,4 +103,4 @@ export namespace utils
     inline ::fast_io::u8c_io_observer u8err{::fast_io::u8c_stderr()};
     // No buffer is provided to u8err
 #endif
-}  // namespace uwvm
+}  // namespace utils

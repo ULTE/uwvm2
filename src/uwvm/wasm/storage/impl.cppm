@@ -7,7 +7,7 @@
 /**
  * @author      MacroModel
  * @version     2.0.0
- * @date        2025-03-27
+ * @date        2025-03-28
  * @copyright   APL-2 License
  */
 
@@ -21,5 +21,8 @@
  ****************************************/
 
 module;
-export module uwvm.run;
-export import :run;
+
+export module uwvm.wasm.storage;
+export import :execute_wasm;
+export import :import_wasm;
+export import :import_dl;

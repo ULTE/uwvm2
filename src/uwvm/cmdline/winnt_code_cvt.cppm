@@ -1,4 +1,4 @@
-/********************************************************
+﻿/********************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)     *
  * Copyright (c) 2025 MacroModel. All rights reserved.  *
  * Licensed under the APL-2 License (see LICENSE file). *
@@ -118,7 +118,7 @@ export namespace uwvm::cmdline
         nt_code_cvt_argv_storage res{};
         res.argc = static_cast<::std::size_t>(u16_cmdline_argc);
 
-        res.argv.reserve(res.argc + 1); // storage latest nullptr
+        res.argv.reserve(res.argc + 1);  // storage latest nullptr
 
         ::fast_io::u8ostring_ref_fast_io u8_storage_ref{::std::addressof(res.parameter_sequence)};
 

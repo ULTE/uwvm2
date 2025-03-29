@@ -154,7 +154,7 @@ export namespace utils::cmdline
         ::fast_io::u8string_view const describe{};  // describtion shown in help
         kns_u8_str_scatter_t alias{};               // alias names
         handle_func_type handle{};                  // formal processing results
-        parameter_func_type pretreatment{};       // pretreatment
+        parameter_func_type pretreatment{};         // pretreatment
         bool* is_exist{};                           // When it is not nullptr, repeated errors will be reported
     };
 

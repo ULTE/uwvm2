@@ -5,9 +5,11 @@
  ********************************************************/
 
 /**
+ * @brief       The wasm file that will be run
+ * @details     "--run" or "-r"
  * @author      MacroModel
  * @version     2.0.0
- * @date        2025-03-27
+ * @date        2025-03-28
  * @copyright   APL-2 License
  */
 
@@ -21,5 +23,14 @@
  ****************************************/
 
 module;
-export module uwvm.run;
-export import :run;
+
+export module uwvm.wasm.storage:execute_wasm;
+
+import fast_io;
+
+export namespace uwvm::wasm::storage
+{
+    inline ::fast_io::native_dll_file execute_wasm_file{};
+
+    // TODO: execute_wasm_module // The result of parsing the exewasm is used to add the import module directly.
+}  // namespace uwvm::wasm::storage
