@@ -96,6 +96,9 @@ target("uwvm")
 	-- utils
 	add_files("src/utils/**.cppm", {public = is_debug_mode})
 
+	-- wasm parser
+	add_files("src/parser/wasm/**.cppm", {public = is_debug_mode})
+
 	-- uwvm
 	add_files("src/uwvm/**.cppm", {public = is_debug_mode})
 

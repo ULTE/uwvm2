@@ -42,6 +42,6 @@ export namespace uwvm::cmdline::paras
 
     inline constexpr ::utils::cmdline::parameter run{.name{u8"--run"},
                                                      .describe{u8"Run WebAssembly."},
-                                                     .usage{u8"<file> <arg1> <arg2> ..."},
+                                                     .usage{u8"<file> <argv[1]> <arg[2]> ..."},
                                                      .alias{::utils::cmdline::kns_u8_str_scatter_t{::std::addressof(details::run_alias), 1}}};
 }  // namespace uwvm::cmdline::paras

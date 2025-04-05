@@ -5,11 +5,9 @@
  ********************************************************/
 
 /**
- * @brief       The wasm file that will be run
- * @details     "--run" or "-r"
  * @author      MacroModel
  * @version     2.0.0
- * @date        2025-03-28
+ * @date        2025-04-03
  * @copyright   APL-2 License
  */
 
@@ -24,15 +22,25 @@
 
 module;
 
-export module uwvm.wasm.storage:execute_wasm;
+#include <cstdint>
+#include <cstddef>
+#include <concepts>
+#include <bit>
+
+#include <parser/wasm/feature/feature_push_macro.h>
+
+export module parser.wasm.proposal.relaxed_simd.type:value_type;
 
 import fast_io;
-import parser.wasm.base;
 
-export namespace uwvm::wasm::storage
+export namespace parser::wasm::proposal::relaxed_simd::value_type
 {
-    inline ::fast_io::native_file_loader execute_wasm_file{};
-    inline ::parser::wasm::base::mode execute_wasm_mode{::parser::wasm::base::mode::objdump};
-    inline ::parser::wasm::base::abi execute_wasm_abi{::parser::wasm::base::abi::detect};
-    // TODO: execute_wasm_module // The result of parsing the exewasm is used to add the import module directly.
-}  // namespace uwvm::wasm::storage
+
+    /// @brief      bf16
+    /// @details    new feature
+    /// @see        https://github.com/WebAssembly/relaxed-simd/issues/77
+#if defined(UWVM_WASM_SUPPORT_BF16)
+    using wasm_bf16 = decltype(0.0bf16);
+#endif
+
+}  // namespace parser::wasm::proposal::relaxed_simd::value_type

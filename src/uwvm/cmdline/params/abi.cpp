@@ -29,7 +29,7 @@ import fast_io;
 import utils.io;
 import utils.cmdline;
 import uwvm.cmdline;
-import uwvm.wasm.base;
+import parser.wasm.base;
 import uwvm.wasm.storage;
 
 namespace uwvm::cmdline::paras::details
@@ -55,11 +55,11 @@ namespace uwvm::cmdline::paras::details
         // Setting the argument is already taken
         currp1->type = ::utils::cmdline::parameter_parsing_results_type::occupied_arg;
 
-        if(auto currp1_str{currp1->str}; currp1_str == u8"bare") { ::uwvm::wasm::storage::execute_wasm_abi = ::uwvm::wasm::base::abi::bare; }
-        else if(currp1_str == u8"emscripten") { ::uwvm::wasm::storage::execute_wasm_abi = ::uwvm::wasm::base::abi::emscripten; }
-        else if(currp1_str == u8"wasip1") { ::uwvm::wasm::storage::execute_wasm_abi = ::uwvm::wasm::base::abi::wasip1; }
-        else if(currp1_str == u8"wasip2") { ::uwvm::wasm::storage::execute_wasm_abi = ::uwvm::wasm::base::abi::wasip2; }
-        else if(currp1_str == u8"wasix") { ::uwvm::wasm::storage::execute_wasm_abi = ::uwvm::wasm::base::abi::wasix; }
+        if(auto currp1_str{currp1->str}; currp1_str == u8"bare") { ::uwvm::wasm::storage::execute_wasm_abi = ::parser::wasm::base::abi::bare; }
+        else if(currp1_str == u8"emscripten") { ::uwvm::wasm::storage::execute_wasm_abi = ::parser::wasm::base::abi::emscripten; }
+        else if(currp1_str == u8"wasip1") { ::uwvm::wasm::storage::execute_wasm_abi = ::parser::wasm::base::abi::wasip1; }
+        else if(currp1_str == u8"wasip2") { ::uwvm::wasm::storage::execute_wasm_abi = ::parser::wasm::base::abi::wasip2; }
+        else if(currp1_str == u8"wasix") { ::uwvm::wasm::storage::execute_wasm_abi = ::parser::wasm::base::abi::wasix; }
         else [[unlikely]]
         {
             ::fast_io::io::perr(

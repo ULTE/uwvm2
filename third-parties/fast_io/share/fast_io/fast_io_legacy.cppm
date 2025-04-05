@@ -1,4 +1,4 @@
-module;
+﻿module;
 
 #include <fast_io.h>
 #include <fast_io_legacy.h>

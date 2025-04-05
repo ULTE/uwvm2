@@ -48,7 +48,7 @@ jobs:
       - name: Check Xmake Version
         run: xmake --version
       - name: Configure
-        run: xmake f -p mingw --use-llvm=y
+        run: xmake f -p mingw --use-llvm=y -m debug
       - name: Build
         run: xmake -v
       - name: Test

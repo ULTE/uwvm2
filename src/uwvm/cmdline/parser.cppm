@@ -133,7 +133,7 @@ export namespace uwvm::cmdline
                         ::fast_io::io::perr(
                             ::utils::u8err,
                             UWVM_AES_U8_RST_ALL
-                                UWVM_AES_U8_WHITE u8"uwvm: " UWVM_AES_U8_RED u8"[error] " UWVM_AES_U8_WHITE u8"Usage: " u8"[" UWVM_AES_U8_GREEN u8"--run" UWVM_AES_U8_WHITE u8"|" UWVM_AES_U8_GREEN u8"-r" UWVM_AES_U8_WHITE u8"] " UWVM_AES_U8_YELLOW u8"<file> <argv1> <argv2> ..." UWVM_AES_U8_RST_ALL u8"\n\n");
+                                UWVM_AES_U8_WHITE u8"uwvm: " UWVM_AES_U8_RED u8"[error] " UWVM_AES_U8_WHITE u8"Usage: " u8"[" UWVM_AES_U8_GREEN u8"--run" UWVM_AES_U8_WHITE u8"|" UWVM_AES_U8_GREEN u8"-r" UWVM_AES_U8_WHITE u8"] " UWVM_AES_U8_YELLOW u8"<file> <argv[1]> <argv[2]> ..." UWVM_AES_U8_RST_ALL u8"\n\n");
 
                         return parsing_return_val::returnm1;
                     }

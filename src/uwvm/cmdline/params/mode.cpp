@@ -29,7 +29,7 @@ import fast_io;
 import utils.io;
 import utils.cmdline;
 import uwvm.cmdline;
-import uwvm.wasm.base;
+import parser.wasm.base;
 import uwvm.wasm.storage;
 
 namespace uwvm::cmdline::paras::details
@@ -55,7 +55,7 @@ namespace uwvm::cmdline::paras::details
         // Setting the argument is already taken
         currp1->type = ::utils::cmdline::parameter_parsing_results_type::occupied_arg;
 
-        if(auto currp1_str{currp1->str}; currp1_str == u8"objdump") { ::uwvm::wasm::storage::execute_wasm_mode = ::uwvm::wasm::base::mode::objdump; }
+        if(auto currp1_str{currp1->str}; currp1_str == u8"objdump") { ::uwvm::wasm::storage::execute_wasm_mode = ::parser::wasm::base::mode::objdump; }
         else [[unlikely]]
         {
             ::fast_io::io::perr(

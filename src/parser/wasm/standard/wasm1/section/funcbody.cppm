@@ -5,11 +5,9 @@
  ********************************************************/
 
 /**
- * @brief       The wasm file that will be run
- * @details     "--run" or "-r"
  * @author      MacroModel
  * @version     2.0.0
- * @date        2025-03-28
+ * @date        2025-04-05
  * @copyright   APL-2 License
  */
 
@@ -24,15 +22,17 @@
 
 module;
 
-export module uwvm.wasm.storage:execute_wasm;
+export module parser.wasm.standard.wasm1.section:funcbody;
 
 import fast_io;
-import parser.wasm.base;
+import parser.wasm.standard.wasm1.type;
 
-export namespace uwvm::wasm::storage
+export namespace parser::wasm::standard::wasm1::section
 {
-    inline ::fast_io::native_file_loader execute_wasm_file{};
-    inline ::parser::wasm::base::mode execute_wasm_mode{::parser::wasm::base::mode::objdump};
-    inline ::parser::wasm::base::abi execute_wasm_abi{::parser::wasm::base::abi::detect};
-    // TODO: execute_wasm_module // The result of parsing the exewasm is used to add the import module directly.
-}  // namespace uwvm::wasm::storage
+    // function bodys
+    struct code_func_body
+    {
+        ::fast_io::vector<::parser::wasm::standard::wasm1::type::local_entry> locals{};
+        ::parser::wasm::standard::wasm1::type::vec_byte body{};
+    };
+}  // namespace parser::wasm::standard::wasm1::section
