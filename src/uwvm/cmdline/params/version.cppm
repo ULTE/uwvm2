@@ -22,32 +22,19 @@
 
 module;
 
+// std
 #include <memory>
-
+// macro
 #include <utils/macro/push_macros.h>
 #include <utils/ansies/ansi_push_macro.h>
 
 export module uwvm.cmdline.params:version;
 
-import fast_io;
-import utils.cmdline;
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
-export namespace uwvm::cmdline::paras
-{
-    namespace details
-    {
-        inline bool version_is_exist{};
-        inline constexpr ::fast_io::array<::fast_io::u8string_view, 2> version_alias{u8"-v", u8"-ver"};
-        extern "C++" ::utils::cmdline::parameter_return_type version_callback(::utils::cmdline::parameter_parsing_results*,
-                                                                              ::utils::cmdline::parameter_parsing_results*,
-                                                                              ::utils::cmdline::parameter_parsing_results*) noexcept;
-
-    }  // namespace details
-
-    inline constexpr ::utils::cmdline::parameter version{
-        .name{u8"--version"},
-        .describe{u8"Output version information."},
-        .alias{::utils::cmdline::kns_u8_str_scatter_t{details::version_alias.data(), details::version_alias.size()}},
-        .handle{::std::addressof(details::version_callback)},
-        .is_exist{::std::addressof(details::version_is_exist)}};
-}  // namespace uwvm::cmdline::paras
+#include "version.h"

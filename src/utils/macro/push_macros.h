@@ -358,7 +358,7 @@
 # define UWVM_IF_NOT_CONSTEVAL (!__builtin_is_constant_evaluated())
 #endif
 
-/// @brief        You can specify the may_alias type attribute for a type so that lvalues of 
+/// @brief        You can specify the may_alias type attribute for a type so that lvalues of
 ///               the type can alias objects of any type, similar to a char type.
 /// @details      on gcc, clang: [[__gnu__::__may_alias__]]
 #pragma push_macro("UWVM_GNU_MAY_ALIAS")
@@ -367,8 +367,8 @@
 # define UWVM_GNU_MAY_ALIAS [[__gnu__::__may_alias__]]
 #endif
 
-/// @details      Allow or disallow loading dynamic libraries, 
-///               this macro is affected by the system environment, 
+/// @details      Allow or disallow loading dynamic libraries,
+///               this macro is affected by the system environment,
 ///               some older systems do not support loading dynamic libraries
 #pragma push_macro("UWVM_CAN_LOAD_DL")
 #undef UWVM_CAN_LOAD_DL
@@ -380,16 +380,16 @@
 /// @details      Determine whether the operating system supports getting the path to the program binary itself.
 #pragma push_macro("UWVM_SUPPORT_INSTALL_PATH")
 #undef UWVM_SUPPORT_INSTALL_PATH
-#if(defined(__linux) || defined(__linux__) || defined(__gnu_linux__)) || defined(__CYGWIN__) || defined(__sun)
-    #define UWVM_SUPPORT_INSTALL_PATH
+#if (defined(__linux) || defined(__linux__) || defined(__gnu_linux__)) || defined(__CYGWIN__) || defined(__sun)
+# define UWVM_SUPPORT_INSTALL_PATH
 #elif defined(_WIN32)
-    #define UWVM_SUPPORT_INSTALL_PATH
+# define UWVM_SUPPORT_INSTALL_PATH
 #elif defined(__DragonFly__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(BSD) || defined(_SYSTYPE_BSD)
-    #define UWVM_SUPPORT_INSTALL_PATH
+# define UWVM_SUPPORT_INSTALL_PATH
 #elif defined(__OpenBSD__)
-    #define UWVM_SUPPORT_INSTALL_PATH
+# define UWVM_SUPPORT_INSTALL_PATH
 #elif defined(__APPLE__)
-    #define UWVM_SUPPORT_INSTALL_PATH
+# define UWVM_SUPPORT_INSTALL_PATH
 #endif
 
 /// @details      Some platforms do not support special characters

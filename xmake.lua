@@ -34,8 +34,12 @@ function def_build()
 	set_encodings("utf-8")
 	set_warnings("all", "extra", "error")
 
-	set_policy("build.c++.modules", true)
-	set_policy("build.c++.modules.std", true)
+	local enable_cxx_module = get_config("use-cxx-module")
+	if enable_cxx_module then
+		add_defines("UWVM_MODULE")
+		set_policy("build.c++.modules", true)
+		set_policy("build.c++.modules.std", true)
+	end 
 
 	local disable_cpp_exceptions = get_config("fno-exceptions")
 	if disable_cpp_exceptions then
@@ -85,23 +89,29 @@ target("uwvm")
 	def_build()
 
 	local is_debug_mode = is_mode("debug") -- public all modules in debug mode
+	local enable_cxx_module = get_config("use-cxx-module")
 
 	-- third-parties/fast_io
 	add_includedirs("third-parties/fast_io/include")
-	add_files("third-parties/fast_io/share/fast_io/fast_io.cppm", {public = is_debug_mode})
-	add_files("third-parties/fast_io/share/fast_io/fast_io_crypto.cppm", {public = is_debug_mode})
 	
+	if enable_cxx_module then
+		add_files("third-parties/fast_io/share/fast_io/fast_io.cppm", {public = is_debug_mode})
+		add_files("third-parties/fast_io/share/fast_io/fast_io_crypto.cppm", {public = is_debug_mode})
+	end 
+
 	-- src
 	add_includedirs("src/")
 
-	-- utils
-	add_files("src/utils/**.cppm", {public = is_debug_mode})
+	if enable_cxx_module then
+		-- utils
+		add_files("src/utils/**.cppm", {public = is_debug_mode})
 
-	-- wasm parser
-	add_files("src/parser/wasm/**.cppm", {public = is_debug_mode})
+		-- wasm parser
+		add_files("src/parser/wasm/**.cppm", {public = is_debug_mode})
 
-	-- uwvm
-	add_files("src/uwvm/**.cppm", {public = is_debug_mode})
+		-- uwvm
+		add_files("src/uwvm/**.cppm", {public = is_debug_mode})
+	end 
 
 	-- uwvm cmd callback
 	add_files("src/uwvm/cmdline/params/**.cpp")
@@ -115,28 +125,33 @@ target_end()
 for _, file in ipairs(os.files("test/non-platform-specific/**.cc")) do
     local name = path.basename(file)
     target(name)
-		add_rules("debug")
-		set_policy("build.sanitizer.address", true)
         set_kind("binary")
 		def_build()
         set_default(false)
 			
+		local enable_cxx_module = get_config("use-cxx-module")
+
 		-- third-parties/fast_io
 		add_includedirs("third-parties/fast_io/include")
-		add_files("third-parties/fast_io/share/fast_io/fast_io.cppm", {public = is_debug_mode})
-		add_files("third-parties/fast_io/share/fast_io/fast_io_crypto.cppm", {public = is_debug_mode})
-		
+
+		if enable_cxx_module then
+			add_files("third-parties/fast_io/share/fast_io/fast_io.cppm", {public = is_debug_mode})
+			add_files("third-parties/fast_io/share/fast_io/fast_io_crypto.cppm", {public = is_debug_mode})
+		end
+
 		-- src
 		add_includedirs("src/")
 
-		-- utils
-		add_files("src/utils/**.cppm", {public = is_debug_mode})
+		if enable_cxx_module then
+			-- utils
+			add_files("src/utils/**.cppm", {public = is_debug_mode})
 
-		-- wasm parser
-		add_files("src/parser/wasm/**.cppm", {public = is_debug_mode})
+			-- wasm parser
+			add_files("src/parser/wasm/**.cppm", {public = is_debug_mode})
 
-		-- uwvm
-		add_files("src/uwvm/**.cppm", {public = is_debug_mode})
+			-- uwvm
+			add_files("src/uwvm/**.cppm", {public = is_debug_mode})
+		end 
 
 		-- uwvm cmd callback
 		add_files("src/uwvm/cmdline/params/**.cpp")

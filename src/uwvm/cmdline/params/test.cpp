@@ -1,4 +1,4 @@
-/********************************************************
+﻿/********************************************************
  * Ultimate WebAssembly Virtual Machine (help 2)     *
  * Copyright (c) 2025 MacroModel. All rights reserved.  *
  * Licensed under the APL-2 License (see LICENSE file). *
@@ -31,14 +31,15 @@
 # include <utils/macro/push_macros.h>
 # include <utils/ansies/ansi_push_macro.h>
 
+# ifdef UWVM_MODULE
 import fast_io;
 import utils.io;
 import utils.cmdline;
-import uwvm.cmdline;
-import parser.wasm.base;
-import uwvm.wasm.storage;
-import parser.wasm.standard.wasm1.type;
-import parser.wasm.concepts;
+# else
+#  include <fast_io.h>
+#  include <utils/io/impl.h>
+#  include <utils/cmdline/impl.h>
+# endif
 
 namespace uwvm::cmdline::paras::details
 {
@@ -46,8 +47,10 @@ namespace uwvm::cmdline::paras::details
                                                                                [[maybe_unused]] ::utils::cmdline::parameter_parsing_results* para_curr,
                                                                                [[maybe_unused]] ::utils::cmdline::parameter_parsing_results* para_end) noexcept
     {
+        // Write the test here
 
-        return ::utils::cmdline::parameter_return_type::return_soon;
+        // return imme
+        return ::utils::cmdline::parameter_return_type::return_imme;
     }
 
 }  // namespace uwvm::cmdline::paras::details

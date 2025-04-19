@@ -22,36 +22,18 @@
 
 module;
 
+// std
 #include <cstdint>
-
+// macro
 #include <utils/macro/push_macros.h>
 
-/// @brief      utils.global:consolecp_win32 module declaration
-export module utils.global:consolecp_win32;
-
-/// @brief      only support on winnt (with win32 api)
-#if (defined(_WIN32) && !defined(__CYGWIN__)) && !defined(_WIN32_WINDOWS)
-
-/// @brief      import fast_io module
-import fast_io;
-
-export namespace utils::global
-{
-    /// @brief      The ConsoleCP of Windows is affected by system environment variables.
-    ///             By setting SetConsoleCP and SetConsoleOutputCP, it can be unified to UTF-8.
-    ///             No need to restore, the console is automatically restored at the end of the program
-    /// @see        https://learn.microsoft.com/en-us/windows/win32/intl/code-page-identifiers
-    struct set_win32_console_io_cp_to_utf8
-    {
-        inline static constexpr ::std::uint_least32_t utf8_coding{65001u /*Unicode (UTF-8)*/};
-
-        UWVM_GNU_COLD inline set_win32_console_io_cp_to_utf8() noexcept
-        {
-            ::fast_io::win32::SetConsoleOutputCP(utf8_coding);
-            ::fast_io::win32::SetConsoleCP(utf8_coding);
-        }
-    };
-
-}  // namespace utils::global
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
 #endif
 
+export module utils.global:consolecp_win32;
+
+#include "consolecp_win32.h"

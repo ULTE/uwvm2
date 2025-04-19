@@ -22,22 +22,17 @@
 
 module;
 
+// std
 #include <cstdint>
 #include <cstddef>
 
 export module uwvm.custom:version;
 
-import fast_io;
-
-export import utils.version;  // print defined method should be export
-
-export namespace uwvm::custom
-{
-    /// @brief      UWVM Version
-    /// @details    2.major.minor.patch
-#if defined(UWVM_VERSION_X) && defined(UWVM_VERSION_Y) && defined(UWVM_VERSION_Z) && defined(UWVM_VERSION_S)
-    inline constexpr ::utils::version uwvm_version{UWVM_VERSION_X, UWVM_VERSION_Y, UWVM_VERSION_Z, UWVM_VERSION_S};
-#else
-    inline constexpr ::utils::version uwvm_version{0, 0, 0, 0};
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
 #endif
-}  // namespace uwvm::custom
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "version.h"

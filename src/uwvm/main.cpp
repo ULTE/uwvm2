@@ -23,8 +23,11 @@
  *                                      *
  ****************************************/
 
-/// @brief import uwvm.crtmain
+#ifdef UWVM_MODULE
 import uwvm.crtmain;
+#else
+# include "crtmain/impl.h"
+#endif
 
 /// @brief      (crt) main func. The main function is a special function, but there are still meaningless [[gnu::used]].
 /// @param      argc Argument Count

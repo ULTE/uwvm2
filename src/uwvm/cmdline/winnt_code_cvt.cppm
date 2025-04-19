@@ -36,103 +36,22 @@
 
 module;
 
+// std
 #include <cstdint>
 #include <cstddef>
 #include <memory>
 #include <bit>
-
+// macro
 #include <utils/macro/push_macros.h>
 #include <utils/ansies/ansi_push_macro.h>
 
 export module uwvm.cmdline:winnt_code_cvt;
 
-import fast_io;
-import utils.io;
-
-export namespace uwvm::cmdline
-{
-#if defined(_WIN32) && !defined(_WIN32_WINDOWS)
-    struct nt_code_cvt_argv_storage UWVM_TRIVIALLY_RELOCATABLE_IF_ELIGIBLE
-    {
-        ::fast_io::vector<char8_t const*> argv{};
-        ::fast_io::u8string parameter_sequence{};
-        ::std::size_t argc{};
-    };
-
-    struct u16_cmdline_argv_guard UWVM_TRIVIALLY_RELOCATABLE_IF_ELIGIBLE
-    {
-        char16_t** argv{};
-
-        inline constexpr u16_cmdline_argv_guard() noexcept = default;
-
-        inline constexpr u16_cmdline_argv_guard(char16_t** other_argv) noexcept : argv{other_argv} {}
-
-        u16_cmdline_argv_guard(u16_cmdline_argv_guard const&) = delete;
-        u16_cmdline_argv_guard& operator= (u16_cmdline_argv_guard const&) = delete;
-
-        inline constexpr u16_cmdline_argv_guard(u16_cmdline_argv_guard&& other) noexcept : argv{other.argv} { other.argv = nullptr; }
-
-        inline constexpr u16_cmdline_argv_guard& operator= (u16_cmdline_argv_guard&& other) noexcept
-        {
-            if(::std::addressof(other) == this) [[unlikely]] { return *this; }
-            this->argv = other.argv;
-            other.argv = nullptr;
-            return *this;
-        }
-
-        inline constexpr ~u16_cmdline_argv_guard() { clear(); }
-
-        inline constexpr void clear() noexcept
-        {
-            if(this->argv) [[likely]] { ::fast_io::win32::LocalFree(this->argv); }
-        }
-    };
-
-    /// @brief nt_code_cvt_argv and return nt_code_cvt_argv_storage
-    inline nt_code_cvt_argv_storage nt_code_cvt_argv() noexcept
-    {
-        // get utf-16 cmdline from peb
-        // There is no need to check the nullptr in this step, it's never nullptr.
-        auto const nt_proc_para{::fast_io::win32::nt::nt_get_current_peb()->ProcessParameters};
-        // There is no need to check the nullptr in this step, CommandLineToArgvW has special handling for nullptr.
-        auto const nt_proc_cmdline{nt_proc_para->CommandLine};
-
-        int u16_cmdline_argc;  // No initialization required
-        auto const u16_cmdline_argv{::fast_io::win32::CommandLineToArgvW(nt_proc_cmdline.Buffer, ::std::addressof(u16_cmdline_argc))};
-        if(u16_cmdline_argv == nullptr) [[unlikely]]
-        {
-            ::fast_io::io::perr(::utils::u8err,
-                                UWVM_AES_U8_RST_ALL UWVM_AES_U8_WHITE u8"uwvm: " UWVM_AES_U8_RED u8"[fatal] " UWVM_AES_U8_WHITE u8"CommandLineToArgvW failed: ",
-                                ::fast_io::error{::fast_io::win32_domain_value, ::fast_io::win32::GetLastError()},
-                                u8"\n" UWVM_AES_U8_RST_ALL u8"Terminate.\n\n");
-            ::fast_io::fast_terminate();
-        }
-
-        u16_cmdline_argv_guard guard{u16_cmdline_argv};  // use raii to release
-
-        nt_code_cvt_argv_storage res{};
-        res.argc = static_cast<::std::size_t>(u16_cmdline_argc);
-
-        res.argv.reserve(res.argc + 1);  // storage latest nullptr
-
-        ::fast_io::u8ostring_ref_fast_io u8_storage_ref{::std::addressof(res.parameter_sequence)};
-
-        for(auto curr_argv{u16_cmdline_argv}; curr_argv != u16_cmdline_argv + res.argc; ++curr_argv)
-        {
-            res.argv.push_back_unchecked(::std::bit_cast<char8_t const*>(res.parameter_sequence.size()));
-            ::fast_io::operations::print_freestanding<false>(u8_storage_ref, ::fast_io::mnp::code_cvt_os_c_str(*curr_argv), u8"\0");
-        }
-
-        for(auto const res_ps_cbegin{res.parameter_sequence.cbegin()}; auto& curr_res_argv: res.argv)
-        {
-            curr_res_argv = res_ps_cbegin + ::std::bit_cast<::std::size_t>(curr_res_argv);
-        }
-
-        res.argv.push_back_unchecked(nullptr);
-
-        return res;
-    }
-
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
 #endif
-}  // namespace uwvm::cmdline
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
+#include "winnt_code_cvt.h"

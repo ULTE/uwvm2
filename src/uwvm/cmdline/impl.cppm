@@ -28,3 +28,12 @@ export import :params;
 #if defined(_WIN32) && !defined(_WIN32_WINDOWS)
 export import :winnt_code_cvt;
 #endif
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

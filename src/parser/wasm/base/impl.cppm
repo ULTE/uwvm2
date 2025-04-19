@@ -22,6 +22,19 @@
  *                                      *
  ****************************************/
 
+module;
+
 export module parser.wasm.base;
 export import :abi;
 export import :mode;
+export import :error;
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"
+

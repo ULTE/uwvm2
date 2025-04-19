@@ -25,3 +25,13 @@ module;
 export module utils.ansies;
 export import :cursor;
 export import :rgb;
+export import :no_color;
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

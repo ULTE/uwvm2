@@ -28,10 +28,16 @@
 
 #include <utils/macro/push_macros.h>
 
+#ifdef UWVM_MODULE
 import fast_io;
-import parser.wasm.standard.wasm1.type;
 import parser.wasm.concepts;
-
+import parser.wasm.standard.wasm1.type;
+#else
+# include <fast_io.h>
+# include <fast_io_dsal/string_view.h>
+# include <parser/wasm/concepts/impl.h>
+# include <parser/wasm/standard/wasm1/type/impl.h>
+#endif
 struct feature1
 {
     inline static constexpr ::fast_io::u8string_view feature_name{u8"1"};
@@ -49,8 +55,7 @@ inline constexpr binfmt_ver1_module_storage_t handle_func(::fast_io::tuple<Fs...
 }
 
 template <::parser::wasm::concepts::wasm_feature... Fs>
-inline constexpr auto
-    define_wasm_binfmt_parsering_strategy(::parser::wasm::concepts::feature_reserve_type_t<feature1>, ::fast_io::tuple<Fs...>) noexcept
+inline constexpr auto define_wasm_binfmt_parsering_strategy(::parser::wasm::concepts::feature_reserve_type_t<feature1>, ::fast_io::tuple<Fs...>) noexcept
 {
     return ::std::addressof(handle_func<Fs...>);
 }

@@ -26,17 +26,11 @@ module;
 
 export module parser.wasm.base:abi;
 
-export namespace parser::wasm::base
-{
-    /// @brief Default automatic import of wasm libraries
-    enum class abi : unsigned
-    {
-        detect,
-        bare,
-        emscripten,
-        wasip1,
-        wasip2,
-        wasix
-    };
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
-}  // namespace parser::wasm::base
+#include "abi.h"

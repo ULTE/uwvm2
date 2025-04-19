@@ -141,4 +141,23 @@ struct io_cookie_t
 
 inline constexpr io_cookie_t io_cookie{};
 
+struct io_null_t
+{
+	explicit inline constexpr io_null_t() noexcept = default;
+};
+
+inline constexpr io_null_t io_null{};
+
+template <::std::integral char_type>
+inline constexpr ::std::size_t print_reserve_size(io_reserve_type_t<char_type, io_null_t>) noexcept
+{
+	return 0;
+}
+
+template <::std::integral char_type>
+inline char_type *print_reserve_define(io_reserve_type_t<char_type, io_null_t>, char_type *first, io_null_t)
+{
+	return first;
+}
+
 } // namespace fast_io

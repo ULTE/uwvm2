@@ -4,8 +4,8 @@
 
 <div style="text-align:center">
     <h1>Ultimate WebAssembly Virtual Machine</h1>
-    <a href="https://github.com/ULTE/uwvm2/actions?query=workflow%3ACI">
-      <img src="https://img.shields.io/github/actions/workflow/status/ULTE/uwvm2/ci.yml?branch=master" alt="github-ci" />
+    <a href="https://github.com/UlteSoft/uwvm2/actions?query=workflow%3ACI">
+      <img src="https://img.shields.io/github/actions/workflow/status/UlteSoft/uwvm2/ci.yml?branch=master" alt="github-ci" />
     </a>
     <a href="LICENSE.md">
         <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" , alt="License" />

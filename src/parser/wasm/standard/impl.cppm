@@ -33,3 +33,12 @@ export import parser.wasm.standard.wasm2_TailCalls_FunctionReference;
 export import parser.wasm.standard.wasm2_TailCalls_FunctionReference_GC;
 export import parser.wasm.standard.wasm2_thread;
 export import parser.wasm.standard.wasm3;
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

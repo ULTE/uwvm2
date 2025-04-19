@@ -20,7 +20,7 @@
  *                                      *
  ****************************************/
 
-/// @brief      The following are the macros used by uwvm. 
+/// @brief      The following are the macros used by uwvm.
 /// @details    Use `push_macro` to avoid side effects on existing macros. Please use `pop_macro` in conjunction.
 
 #pragma once

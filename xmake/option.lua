@@ -126,6 +126,15 @@ option("use-llvm", function()
     set_default(false)
 end)
 
+option("use-cxx-module", function()
+    set_description
+    (
+        "Use CXX Module to compile.",
+        "default = false"
+    )
+    set_default(false)
+end)
+
 option("enable-int", function()
     set_description
     (

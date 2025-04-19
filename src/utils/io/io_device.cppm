@@ -26,38 +26,13 @@
 
 module;
 
-/// @brief      utils.io:io_device module declaration
 export module utils.io:io_device;
 
-/// @brief      import fast_io module
-import fast_io;
-
-export namespace utils
-{
-    // io does not add meaningless namespaces.
-
-#ifndef __AVR__
-
-    /// @brief      native stdout
-    /// @details    on non-windows (POSIX) systems (fd): (int)[0, 1, 2]
-    ///             on win9x-win32 (handle): (void*) GetStdHandle([STD_INPUT_HANDLE, STD_OUTPUT_HANDLE, STD_ERROR_HANDLE])
-    ///             on nt (handle): (void*) RtlGetCurrentPeb()->ProcessParameters->Standard[Input, Output, Error]
-    ///             set in out err __init_priority__ to 250, set xxx_buf __init_priority__ to 260
-
-    inline ::fast_io::u8native_io_observer u8in{::fast_io::u8in()};                  // No global variable dependencies from other translation units
-    inline ::fast_io::basic_ibuf<::fast_io::u8native_io_observer> u8in_buf{u8in};    // No global variable dependencies from other translation units
-    inline ::fast_io::u8native_io_observer u8out{::fast_io::u8out()};                // No global variable dependencies from other translation units
-    inline ::fast_io::basic_obuf<::fast_io::u8native_io_observer> u8out_buf{u8out};  // No global variable dependencies from other translation units
-    inline ::fast_io::u8native_io_observer u8err{::fast_io::u8err()};                // No global variable dependencies from other translation units
-    // No buffer is provided to u8err
-#else
-    // The C API of avrlibc does not have any buffers.
-
-    inline ::fast_io::u8c_io_observer u8in{::fast_io::u8c_stdin()};             // No global variable dependencies from other translation units
-    inline ::fast_io::basic_ibuf<::fast_io::u8c_io_observer> u8in_buf{u8in};    // No global variable dependencies from other translation units
-    inline ::fast_io::u8c_io_observer u8out{::fast_io::u8c_stdout()};           // No global variable dependencies from other translation units
-    inline ::fast_io::basic_obuf<::fast_io::u8c_io_observer> u8out_buf{u8out};  // No global variable dependencies from other translation units
-    inline ::fast_io::u8c_io_observer u8err{::fast_io::u8c_stderr()};           // No global variable dependencies from other translation units
-    // No buffer is provided to u8err
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
 #endif
-}  // namespace utils
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "io_device.h"

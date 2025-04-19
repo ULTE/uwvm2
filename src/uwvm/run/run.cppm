@@ -22,84 +22,20 @@
 
 module;
 
+// std
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
-
+// macro
 #include <utils/ansies/ansi_push_macro.h>
 
 export module uwvm.run:run;
 
-import fast_io;
-import utils.io;
-import uwvm.cmdline;
-import uwvm.wasm.storage;
-import uwvm.wasm.feature;
-import parser.wasm.concepts;
-import parser.wasm.standard;
-
-export namespace uwvm::run
-{
-    inline int run() noexcept
-    {
-
-        if(!::uwvm::cmdline::wasm_file_ppos) [[unlikely]]
-        {
-            ::fast_io::io::perr(
-                ::utils::u8err,
-                UWVM_AES_U8_RST_ALL UWVM_AES_U8_WHITE u8"uwvm: " UWVM_AES_U8_RED u8"[error] " UWVM_AES_U8_WHITE u8"No input file.\n\n" UWVM_AES_U8_RST_ALL);
-            return -1;
-        }
-
-        auto module_name{::uwvm::cmdline::wasm_file_ppos->str};
-#ifdef __cpp_exceptions
-        try
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
 #endif
-        {
-            ::uwvm::wasm::storage::execute_wasm_file = ::fast_io::native_file_loader{module_name};
-        }
-#ifdef __cpp_exceptions
-        catch(::fast_io::error e)
-        {
-            ::fast_io::io::perr(::utils::u8err,
-                                UWVM_AES_U8_RST_ALL UWVM_AES_U8_WHITE u8"uwvm: " UWVM_AES_U8_RED u8"[error] " UWVM_AES_U8_WHITE u8"Unable to open WASM file \"" UWVM_AES_U8_CYAN,
-                                module_name,
-                                UWVM_AES_U8_WHITE u8"\": ",
-                                e,
-                                UWVM_AES_U8_RST_ALL u8"\n"
-# ifndef _WIN32  // Win32 automatically adds a newline
-                                u8"\n"
-# endif
-                            );
-            return -1;
-        }
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
 #endif
 
-        switch(::uwvm::wasm::storage::execute_wasm_binfmt_ver)
-        {
-            case 1:
-            {
-                // parse wasm 1
-                constexpr auto binfmt_ver1_handler{
-                    ::parser::wasm::concepts::operation::get_binfmt_handler_func_p_from_tuple<1>(::uwvm::wasm::feature::features)};
-
-                ::uwvm::wasm::storage::execute_wasm_binfmt_ver1_storage =
-                    binfmt_ver1_handler(::uwvm::wasm::storage::wasm_binfmt1_features_t{},
-                                        reinterpret_cast<::std::byte const*>(::uwvm::wasm::storage::execute_wasm_file.cbegin()),
-                                        reinterpret_cast<::std::byte const*>(::uwvm::wasm::storage::execute_wasm_file.cend()));
-
-                /// @todo run vm
-
-                // return 0
-                break;
-            }
-            default:
-            {
-                // uwvm never match this control block
-                ::fast_io::unreachable();
-            }
-        }
-
-        return 0;
-    }
-}  // namespace uwvm::run
+#include "run.h"

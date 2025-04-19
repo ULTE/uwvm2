@@ -29,3 +29,12 @@ export import :tzset;
 export import :ansi_win32;
 export import :consolecp_win32;
 #endif
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

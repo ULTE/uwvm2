@@ -1,34 +1,39 @@
 name: CI
 on:
-  push:
-    paths-ignore:
-      - "documents/**"
   pull_request:
     paths-ignore:
       - "documents/**"
+      - "**.md"
+  push:
+    paths-ignore:
+      - "documents/**"
+      - "**.md"
+  workflow_dispatch:
 
 jobs:
   # ---------------------------------------------------------------------------
-  # linux:
-  #   name: Linux
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: xmake-io/github-action-setup-xmake@v1
-  #     - name: Setup
-  #       run: sudo apt install clang clang-tools
-  #     - name: Check Clang Version
-  #       run: clang -v
-  #     - name: symlink clang-scan-deps
-  #       run: sudo ln -s /usr/lib/llvm-18/bin/clang-scan-deps /usr/bin/clang-scan-deps
-  #     - name: Check Xmake Version
-  #       run: xmake --version
-  #     - name: Configure
-  #       run: xmake f --use-llvm=y -m debug
-  #     - name: Build
-  #       run: xmake -v
-  #     - name: Test
-  #       run: xmake run uwvm --version
+  linux:
+    name: Linux
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup
+        run: |
+          wget -qO- https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/llvm.asc
+          sudo add-apt-repository ppa:xmake-io/xmake
+          sudo add-apt-repository "deb http://apt.llvm.org/noble/ llvm-toolchain-noble-20 main"
+          sudo apt-get install -t llvm-toolchain-noble-20 clang-20 clang-tools-20 lld-20
+          sudo apt-get install xmake
+      - name: Configure
+        run: xmake f -m debug --use-llvm=y --sdk=/usr/lib/llvm-20
+      - name: Build
+        run: xmake b -v
+      - name: Test UWVM
+        run: xmake run uwvm --version
+      - name: Test Configure
+        run: xmake f -m debug --use-llvm=y --sdk=/usr/lib/llvm-20 --policies=build.sanitizer.address
+      - name: Test units
+        run: xmake test -vD
   # ---------------------------------------------------------------------------
   msys2-clang64:
     name: MSYS2 CLANG64
@@ -45,13 +50,34 @@ jobs:
           install: |
             mingw-w64-clang-x86_64-cc
             mingw-w64-clang-x86_64-xmake
-      - name: Check Xmake Version
-        run: xmake --version
       - name: Configure
         run: xmake f -p mingw --use-llvm=y -m debug
       - name: Build
-        run: xmake -v
+        run: xmake b -v
       - name: Test UWVM
         run: xmake run uwvm --version
+      - name: Test Configure
+        run: xmake f -p mingw --use-llvm=y -m debug --policies=build.sanitizer.address
       - name: Test units
         run: xmake test -vD
+  # ---------------------------------------------------------------------------
+  #freebsd:
+  #  name: FreeBSD
+  #  runs-on: ubuntu-latest
+  #  defaults:
+  #    run:
+  #      shell: freebsd {0}
+  #  steps:
+  #    - uses: actions/checkout@v4
+  #    - uses: vmactions/freebsd-vm@v1
+  #      with:
+  #        prepare: |
+  #          pkg install -y llvm20 xmake-io
+  #    - name: Build
+  #      run: |
+  #        export XMAKE_ROOT=y
+  #        cd ${GITHUB_WORKSPACE}
+  #        xmake f -m debug
+  #        xmake b -v
+  #        xmake run uwvm --version
+  #        xmake test -vD

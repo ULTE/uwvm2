@@ -22,34 +22,16 @@
 
 module;
 
+// macro
 #include <utils/macro/push_macros.h>
 
 export module parser.wasm.standard.wasm1.section:funcbody;
 
-import fast_io;
-import parser.wasm.standard.wasm1.type;
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
-export namespace parser::wasm::standard::wasm1::section
-{
-    /// @brief function bodys, use to storage
-    struct code_func_body UWVM_TRIVIALLY_RELOCATABLE_IF_ELIGIBLE
-    {
-        ::fast_io::vector<::parser::wasm::standard::wasm1::type::local_entry> locals{};
-        ::parser::wasm::standard::wasm1::type::vec_byte body{};
-    };
-}  // namespace parser::wasm::standard::wasm1::section
-
-export namespace fast_io::freestanding
-{
-    template <>
-    struct is_trivially_copyable_or_relocatable<parser::wasm::standard::wasm1::section::code_func_body>
-    {
-        inline static constexpr bool value = true;
-    };
-
-    template <>
-    struct is_zero_default_constructible<parser::wasm::standard::wasm1::section::code_func_body>
-    {
-        inline static constexpr bool value = true;
-    };
-}  // namespace fast_io::freestanding
+#include "funcbody.h"

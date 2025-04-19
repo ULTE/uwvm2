@@ -10,4 +10,5 @@ Includes various widgets
 * `intrinsics` Provide some intrinsics functions, like prefetch, etc.
 * `io` Provides interfaces to IO settings, (void*) `handle` on NT and Win32, (int) `fd 0 1 2` on POSIX, (FILE*) `stdin` `stdout` `stderr` on AvrLibc.
 * `macro` Generic Macro Definitions
+* `madvise` posix_madvise and simulation on win32
 * `version` revision structure: 2.major.minor.patch

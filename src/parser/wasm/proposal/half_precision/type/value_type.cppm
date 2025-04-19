@@ -22,24 +22,21 @@
 
 module;
 
+// std
 #include <cstdint>
 #include <cstddef>
 #include <concepts>
 #include <bit>
-
+// macro
 #include <parser/wasm/feature/feature_push_macro.h>
 
 export module parser.wasm.proposal.half_precision.type:value_type;
 
-import fast_io;
-
-export namespace parser::wasm::proposal::half_precision::value_type
-{
-    /// @brief      fp16
-    /// @details    new feature
-    /// @see        https://github.com/WebAssembly/half-precision
-#if defined(UWVM_WASM_SUPPORT_FP16)
-    using wasm_fp16 = __float16;
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
 #endif
 
-}  // namespace parser::wasm::proposal::half_precision::value_type
+#include "value_type.h"

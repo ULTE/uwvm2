@@ -26,11 +26,11 @@ module;
 
 export module uwvm.wasm.storage:import_wasm;
 
-import fast_io;
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
-export namespace uwvm::wasm::storage
-{
-    inline ::fast_io::vector<::fast_io::native_file_loader> import_wasm_file{};  // No global variable dependencies from other translation units
-
-    // TODO: import_wasm_module // The result of parsing the wasm is used to add the import module directly.
-}  // namespace uwvm::wasm::storage
+#include "import_wasm.h"

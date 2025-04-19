@@ -25,9 +25,16 @@
 #include <type_traits>
 #include <concepts>
 
+#ifdef UWVM_MODULE
 import fast_io;
-import parser.wasm.standard.wasm1.type;
 import parser.wasm.concepts;
+import parser.wasm.standard.wasm1.type;
+#else
+# include <fast_io.h>
+# include <fast_io_dsal/string_view.h>
+# include <parser/wasm/concepts/impl.h>
+# include <parser/wasm/standard/wasm1/type/impl.h>
+#endif
 
 struct feature1
 {

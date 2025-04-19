@@ -25,3 +25,12 @@ module;
 export module utils.install_path;
 export import :install_path;
 export import :storage;
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

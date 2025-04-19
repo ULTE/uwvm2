@@ -29,7 +29,17 @@ export import :help;
 export import :mode;
 export import :wasm_abi;
 export import :wasm_binfmt;
+export import :debug_output;
 
 #ifdef _DEBUG
 export import :test;
 #endif
+
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
+
+#include "impl.h"

@@ -20,7 +20,7 @@
  *                                      *
  ****************************************/
 
-/// @brief      The following are the macros used by ansi escape sequences. 
+/// @brief      The following are the macros used by ansi escape sequences.
 /// @details    Use `push_macro` to avoid side effects on existing macros. Please use `pop_macro` in conjunction.
 
 #pragma once

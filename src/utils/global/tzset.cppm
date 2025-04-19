@@ -22,21 +22,16 @@
 
 module;
 
+// macro
 #include <utils/macro/push_macros.h>
 
-/// @brief      utils.global:tzset module declaration
 export module utils.global:tzset;
 
-/// @brief      import fast_io module
-import fast_io;
+#ifndef UWVM_MODULE
+# define UWVM_MODULE
+#endif
+#ifndef UWVM_MODULE_EXPORT
+# define UWVM_MODULE_EXPORT export
+#endif
 
-export namespace utils::global
-{
-    /// @brief      Declare this via a global variable to get the correct timezone data when the program is run.
-    struct tz_set_s
-    {
-        /// @brief      The tzset() function initializes the tzname variable from the TZ environment variable.
-        /// @see        tzset(3)
-        UWVM_GNU_COLD inline tz_set_s() noexcept { ::fast_io::posix_tzset(); }
-    };
-}  // namespace utils::global
+#include "tzset.h"
