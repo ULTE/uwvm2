@@ -25,6 +25,9 @@
 
 // #pragma once
 
+/// @brief This file defines those header files that can only be imported once in push_macro. h
+#include "push_macros_include_header_pragma_once.h"
+
 /// @brief std and windows.h macro
 
 #pragma push_macro("erase")
@@ -103,6 +106,7 @@
 
 /// @brief        Modify function symbol linkage via ASM on GCC or Clang
 /// @see          UWVM_WINSTDCALL
+/// @note         Need to include <climit> (SIZE_MAX) and <cstdint> (UINT_LEAST32_MAX) before
 #pragma push_macro("UWVM_WINSTDCALL_RENAME")
 #undef UWVM_WINSTDCALL_RENAME
 #if defined(__clang__) || defined(__GNUC__)
@@ -274,7 +278,7 @@
 #endif
 
 /// @brief        __has_builtin
-/// @details      Avoid using __has_builtin on unsupport compiler
+/// @details      __has_builtin is not provided by standard cpp, avoid using __has_builtin on unsupport compiler
 #pragma push_macro("UWVM_HAS_BUILTIN")
 #undef UWVM_HAS_BUILTIN
 #ifdef __has_builtin
@@ -358,8 +362,8 @@
 #endif
 
 /// @brief        MSVC may not support if consteval, so macros are used to select the appropriate version.
-/// @details      on gcc, clang: consteval
-///               on msvc: (__builtin_is_constant_evaluated())
+/// @details      on gcc, clang: !consteval
+///               on msvc: (!__builtin_is_constant_evaluated())
 #pragma push_macro("UWVM_IF_NOT_CONSTEVAL")
 #undef UWVM_IF_NOT_CONSTEVAL
 #if __cpp_if_consteval >= 202106L
@@ -418,4 +422,14 @@
 # define UWVM_GNU_USED [[__gnu__::__used__]]
 #else
 # define UWVM_GNU_USED
+#endif
+
+/// @see          https://gcc.gnu.org/legacy-ml/gcc-patches/2005-07/msg01969.html
+/// @details      on gcc, clang: [[__gnu__::__nodebug__]]
+#pragma push_macro("UWVM_GNU_NODEBUG")
+#undef UWVM_GNU_NODEBUG
+#if __has_cpp_attribute(__gnu__::__nodebug__)
+# define UWVM_GNU_NODEBUG [[__gnu__::__nodebug__]]
+#else
+# define UWVM_GNU_NODEBUG
 #endif

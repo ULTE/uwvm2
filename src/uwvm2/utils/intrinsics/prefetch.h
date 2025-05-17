@@ -40,7 +40,7 @@
 # define UWVM_MODULE_EXPORT
 #endif
 
-UWVM_MODULE_EXPORT namespace uwvm2::utils::intrinsics
+UWVM_MODULE_EXPORT namespace uwvm2::utils::intrinsics::universal
 {
     /// @brief      Direct conversion to cpu prefetch instructions
     /// @details    write: write or read sensitive
@@ -52,7 +52,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::intrinsics
     /// @see        __builtin_prefetch and _mm_prefetch
     template <bool write = false, int level = 3>
         requires (0 <= level && level <= 3)
-    UWVM_GNU_ALWAYS_INLINE_ARTIFICIAL inline void prefetch(void const* address) noexcept
+    UWVM_GNU_ALWAYS_INLINE_ARTIFICIAL UWVM_GNU_NODEBUG inline void prefetch(void const* address) noexcept
     {
 #if UWVM_HAS_BUILTIN(__builtin_prefetch)
         __builtin_prefetch(address, static_cast<int>(write), level);
@@ -61,7 +61,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::intrinsics
 #endif
     }
 
-}  // namespace uwvm2::utils::intrinsics
+}  // namespace uwvm2::utils::intrinsics::universal
 
 #ifndef UWVM_MODULE
 // macro

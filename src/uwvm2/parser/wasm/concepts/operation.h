@@ -23,7 +23,7 @@
 #pragma once
 
 #if !(__cpp_pack_indexing >= 202311L)
-# error "UWVM requires at least C++26 standard compiler."
+# error "UWVM requires at least C++26 standard compiler. See https://en.cppreference.com/w/cpp/feature_test#cpp_pack_indexing"
 #endif
 
 #ifdef UWVM_MODULE

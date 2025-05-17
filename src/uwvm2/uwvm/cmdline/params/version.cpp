@@ -21,6 +21,7 @@
  ****************************************/
 
 #include <memory>
+#include <utility>
 
 #include <uwvm2/utils/macro/push_macros.h>
 #include <uwvm2/uwvm/utils/ansies/uwvm_color_push_macro.h>
@@ -54,24 +55,32 @@ import uwvm2.uwvm.utils.install_path;
 
 namespace uwvm2::uwvm::cmdline::paras::details
 {
-    template <::uwvm2::parser::wasm::concepts::has_feature_name F0, ::uwvm2::parser::wasm::concepts::has_feature_name... Fs>
-    inline void version_print_wasm_feature_impl() noexcept
+    template <typename Stm, ::uwvm2::parser::wasm::concepts::has_feature_name F0, ::uwvm2::parser::wasm::concepts::has_feature_name... Fs>
+    inline void version_print_wasm_feature_impl(Stm&& stm) noexcept
     {
-        ::fast_io::io::perrln(::uwvm2::uwvm::u8log_output, u8"        ", F0::feature_name);
-        if constexpr(sizeof...(Fs) != 0) { version_print_wasm_feature_impl<Fs...>(); }
+        ::fast_io::io::perrln(::std::forward<Stm>(stm), u8"        ", F0::feature_name);
+        if constexpr(sizeof...(Fs) != 0) { version_print_wasm_feature_impl<Stm, Fs...>(::std::forward<Stm>(stm)); }
     }
 
-    template <::uwvm2::parser::wasm::concepts::has_feature_name... Fs>
-    inline void version_print_wasm_feature_from_tuple(::fast_io::tuple<Fs...>) noexcept
+    template <typename Stm, ::uwvm2::parser::wasm::concepts::has_feature_name... Fs>
+    inline void version_print_wasm_feature_from_tuple(Stm&& stm, ::fast_io::tuple<Fs...>) noexcept
     {
-        version_print_wasm_feature_impl<Fs...>();
+        version_print_wasm_feature_impl<Stm, Fs...>(::std::forward<Stm>(stm));
     }
 
     UWVM_GNU_COLD extern ::uwvm2::utils::cmdline::parameter_return_type version_callback(::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                        ::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                        ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept
+                                                                                         ::uwvm2::utils::cmdline::parameter_parsing_results*,
+                                                                                         ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept
     {
-        ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+        // No copies will be made here.
+        auto u8log_output_osr{::fast_io::operations::output_stream_ref(::uwvm2::uwvm::u8log_output)};
+        // Add raii locks while unlocking operations
+        ::fast_io::operations::decay::stream_ref_decay_lock_guard u8log_output_lg{
+            ::fast_io::operations::decay::output_stream_mutex_ref_decay(u8log_output_osr)};
+        // No copies will be made here.
+        auto u8log_output_ul{::fast_io::operations::decay::output_stream_unlocked_ref_decay(u8log_output_osr)};
+
+        ::fast_io::io::perr(u8log_output_ul,
                                 // logo
                                 ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL), 
                                 u8"\n",
@@ -242,6 +251,9 @@ namespace uwvm2::uwvm::cmdline::paras::details
 # endif
 #elif defined(__x86_64__) || defined(_M_AMD64)
                                 u8"x86_64"
+# if defined(__APX_F__)
+                                u8" (APX)"
+# endif
 #elif defined(__i386__) || defined(_M_IX86)
 # if defined(__MINGW32__) || defined(_MSC_VER)
                                 u8"i686"
@@ -266,11 +278,20 @@ namespace uwvm2::uwvm::cmdline::paras::details
                                 u8"Motorola 68k"
 #elif defined(__MIPS64__) || defined(__mips64__)
                                 u8"MIPS64"
+# if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL)
+                                u8"EL"
+# endif
 # if defined(_MIPS_ARCH_MIPS64R2)
-                                u8"R2"
+                                u8" (R2)"
 # endif
 #elif defined(__MIPS__) || defined(__mips__) || defined(_MIPS_ARCH)
                                 u8"MIPS"
+# if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL)
+                                u8"EL"
+# endif
+# if defined(_MIPS_ARCH_MIPS32R2)
+                                u8" (R2)"
+# endif
 #elif defined(__HPPA__)
                                 u8"HP/PA RISC"
 #elif defined(__riscv)
@@ -286,12 +307,12 @@ namespace uwvm2::uwvm::cmdline::paras::details
                                 u8"PDP11"
 #elif defined(__powerpc64__) || defined(__ppc64__) || defined(__PPC64__) || defined(_ARCH_PPC64)
                                 u8"PowerPC64"
-# if defined(_LITTLE_ENDIAN)
+# if defined(_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__)
                                 u8"LE"
 # endif
 #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || defined(_ARCH_PPC)
                                 u8"PowerPC"
-# if defined(_LITTLE_ENDIAN)
+# if defined(_LITTLE_ENDIAN) || defined(__LITTLE_ENDIAN__)
                                 u8"LE"
 # endif
 # if defined(__SPE__)
@@ -349,6 +370,12 @@ namespace uwvm2::uwvm::cmdline::paras::details
 # if defined(__ARM_FEATURE_SVE2)
                                 u8"SVE2 "
 # endif
+# if defined(__ARM_FEATURE_SME)
+                                u8"SME "
+# endif
+# if defined(__ARM_FEATURE_SME2)
+                                u8"SME2 "
+# endif
 #elif (defined(__x86_64__) || defined(_M_AMD64) || defined(__i386__) || defined(_M_IX86)) && defined(__MMX__)
                                 u8"\nSIMD support: "
 # if defined(__MMX__)
@@ -393,6 +420,9 @@ namespace uwvm2::uwvm::cmdline::paras::details
 # if defined(__AVX512F__)
                                 u8"AVX512F "
 # endif
+# if defined(__AVX512CD__)
+                                u8"AVX512CD "
+# endif
 # if defined(__AVX512BW__)
                                 u8"AVX512BW "
 # endif
@@ -402,19 +432,38 @@ namespace uwvm2::uwvm::cmdline::paras::details
 # if defined(__AVX512DQ__)
                                 u8"AVX512DQ "
 # endif
-# if 0
-#  if defined(__AVX512BF16__)
-                                u8"AVX512BF16 "
-#  endif
-#  if defined(__AVX512FP16__)
-                                u8"AVX512FP16 "
-#  endif
-# endif
 # if defined(__AVX512VBMI__)
                                 u8"AVX512VBMI "
 # endif
-# if defined(__APX_F__)
-                                u8"APX "
+# if defined(__AVX512VBMI2__)
+                                u8"AVX512VBMI2 "
+# endif
+# if defined(__AVX512BITALG__)
+                                u8"AVX512BITALG "
+# endif
+# if defined(__AVX512IFMA__)
+                                u8"AVX512IFMA "
+# endif
+# if defined(__AVX512VNNI__)
+                                u8"AVX512VNNI "
+# endif
+# if defined(__AVX512FP16__)
+                                u8"AVX512FP16 "
+# endif
+# if defined(__AVX512BF16__)
+                                u8"AVX512BF16 "
+# endif
+# if defined(__AVX10_1__)
+                                u8"AVX10.1 "
+# endif
+# if defined(__AVX10_1_512__)
+                                u8"AVX10.1/512 "
+# endif
+# if defined(__AVX10_2__)
+                                u8"AVX10.2 "
+# endif
+# if defined(__AVX10_2_512__)
+                                u8"AVX10.2/512 "
 # endif
 #elif defined(__VECTOR4DOUBLE__) || defined(__VSX__) || (defined(__ALTIVEC__) || defined(__VEC__))
                                 u8"\nSIMD support: PPC SIMD"
@@ -541,12 +590,14 @@ namespace uwvm2::uwvm::cmdline::paras::details
                                 u8"cloudlibc"
 #elif defined(__UCLIBC__)
                                 u8"uClibc"
+#elif defined(__OHOS__)
+                                u8"OpenHarmony"
 #elif defined(__CRTL_VER)
                                 u8"VMS"
 #elif defined(__LIBREL__)
                                 u8"z/OS"
-#elif defined(__AVR__) || defined(_PICOLIBC__)
-                                u8"AVR LIBC"
+#elif defined(__PICOLIBC__)
+                                u8"picolibc"
 #elif defined(__LLVM_LIBC__) || defined(__LLVM_LIBC_TYPES_FILE_H__)
                                 u8"LLVM LIBC "
 #elif defined(__MLIBC_O_CLOEXEC)
@@ -556,11 +607,11 @@ namespace uwvm2::uwvm::cmdline::paras::details
 #elif defined(__NEED___isoc_va_list) || defined(__musl__)
                                 u8"MUSL"
 #elif defined(__serenity__)
-                                u8"serenity"
+                                u8"Serenity"
 #elif defined(__DJGPP__)
-                                u8"djgpp"
+                                u8"DJGPP"
 #elif defined(__BSD_VISIBLE) || (defined(__NEWLIB__) && !defined(__CUSTOM_FILE_IO__)) || defined(__MSDOS__)
-                                u8"unix"
+                                u8"UNIX"
 #else
                                 u8"Unknown"
 #endif
@@ -617,9 +668,9 @@ namespace uwvm2::uwvm::cmdline::paras::details
                                 u8"\n"
             );
         // wasm feature
-        version_print_wasm_feature_from_tuple(::uwvm2::uwvm::wasm::feature::all_features);
+        version_print_wasm_feature_from_tuple(u8log_output_ul, ::uwvm2::uwvm::wasm::feature::all_features);
         // end ln
-        ::fast_io::io::perrln(::uwvm2::uwvm::u8log_output);
+        ::fast_io::io::perrln(u8log_output_ul);
 
         return ::uwvm2::utils::cmdline::parameter_return_type::return_imme;
     }

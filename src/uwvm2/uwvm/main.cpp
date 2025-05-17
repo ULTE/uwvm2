@@ -23,6 +23,8 @@
  *                                      *
  ****************************************/
 
+#include <uwvm2/utils/macro/push_macros.h>
+
 #ifdef UWVM_MODULE
 import uwvm2.uwvm.crtmain;
 #else
@@ -36,10 +38,6 @@ import uwvm2.uwvm.crtmain;
 /// @return     exit(3)
 /// @see        ::uwvm2::uwvm::uwvm_main()
 
-#if __has_cpp_attribute(__gnu__::__used__)
-[[__gnu__::__used__]]
-#endif
-int main(int argc, char** argv)
-{
-    return ::uwvm2::uwvm::uwvm_main(argc, argv);
-}
+UWVM_GNU_USED int main(int argc, char** argv) { return ::uwvm2::uwvm::uwvm_main(argc, argv); }
+
+#include <uwvm2/utils/macro/pop_macros.h>

@@ -24,4 +24,5 @@
 
 #ifndef UWVM_MODULE
 # include "prefetch.h"
+# include "arm_sve.h"
 #endif

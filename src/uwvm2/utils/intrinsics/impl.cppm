@@ -24,6 +24,7 @@ module;
 
 export module uwvm2.utils.intrinsics;
 export import :prefetch;
+export import :arm_sve;
 
 #ifndef UWVM_MODULE
 # define UWVM_MODULE
