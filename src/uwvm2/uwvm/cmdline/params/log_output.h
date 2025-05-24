@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-16
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -48,8 +48,8 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline::paras
         inline bool log_output_is_exist{};
         inline constexpr ::fast_io::u8string_view log_output_alias{u8"-log"};
         extern "C++" ::uwvm2::utils::cmdline::parameter_return_type log_output_callback(::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                       ::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                       ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept;
+                                                                                        ::uwvm2::utils::cmdline::parameter_parsing_results*,
+                                                                                        ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept;
 
     }  // namespace details
 
@@ -62,7 +62,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline::paras
         .describe{u8"Setting the log output of the uwvm, (DEFAULT: err)."},
         .usage{
 #if !defined(__AVR__) && !((defined(_WIN32) && !defined(__WINE__)) && defined(_WIN32_WINDOWS)) && !(defined(__MSDOS__) || defined(__DJGPP__)) &&               \
-    !(defined(__NEWLIB__) && !defined(__CYGWIN__))
+    !(defined(__NEWLIB__) && !defined(__CYGWIN__)) && !defined(_PICOLIBC__) && !defined(__wasm__)
             u8"[out|err|file <file>]"
 #else
             u8"[out|err]"

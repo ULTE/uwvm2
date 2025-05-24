@@ -1,7 +1,7 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
@@ -10,7 +10,7 @@
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-16
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -86,7 +86,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_value_type() noexcept
     {
         if constexpr(has_value_type<FeatureType>) { return typename FeatureType::value_type{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
@@ -133,7 +136,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_type_prefix() noexcept
     {
         if constexpr(has_type_prefix<FeatureType>) { return typename FeatureType::type_prefix{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
@@ -170,7 +176,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
                                                                             constexpr bool tallow{FsCurr::allow_multi_result_vector};
                                                                             return tallow;
                                                                         }
-                                                                        else { return false; }
+                                                                        else
+                                                                        {
+                                                                            return false;
+                                                                        }
                                                                     }.template operator()<Fs...[I]>()) ||
                     ...);
         }(::std::make_index_sequence<sizeof...(Fs)>{});
@@ -221,7 +230,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_extern_type() noexcept
     {
         if constexpr(has_extern_type<FeatureType>) { return typename FeatureType::template extern_type<Fs...>{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
@@ -239,8 +251,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     struct final_import_type
     {
         static_assert(is_valid_final_extern_type_t<Fs...>);
-
-        ::fast_io::u8string_view custom_name{};  // The name used for the data segment
 
         ::fast_io::u8string_view module_name{};
         ::fast_io::u8string_view extern_name{};
@@ -267,7 +277,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_table_type() noexcept
     {
         if constexpr(has_table_type<FeatureType>) { return typename FeatureType::table_type{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
@@ -292,7 +305,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_memory_type() noexcept
     {
         if constexpr(has_memory_type<FeatureType>) { return typename FeatureType::memory_type{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
@@ -317,11 +333,24 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
     inline consteval auto get_global_type() noexcept
     {
         if constexpr(has_global_type<FeatureType>) { return typename FeatureType::global_type{}; }
-        else { return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{}; }
+        else
+        {
+            return ::uwvm2::parser::wasm::concepts::operation::irreplaceable_t{};
+        }
     }
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
     using final_global_type = ::uwvm2::parser::wasm::concepts::operation::replacement_structure_t<decltype(get_global_type<Fs>())...>;
+
+    /// @brief      final_local_function_type
+    /// @details    Storing pointers instead of u32 doubles the memory on 64-bit platforms, and then the index * size is pre-calculated by simd. on 32-bit
+    ///             platforms, the memory footprint is the same. On all platforms, calculating the index * size at the same time as the parse reduces the time
+    ///             required for subsequent index * size calculations.
+    template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
+    struct final_local_function_type
+    {
+        final_function_type<Fs...> const* func_type{};
+    };
 
 }  // namespace uwvm2::parser::wasm::standard::wasm1::features
 
@@ -336,6 +365,12 @@ UWVM_MODULE_EXPORT namespace fast_io::freestanding
 
     template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
     struct is_zero_default_constructible<::uwvm2::parser::wasm::standard::wasm1::features::final_import_type<Fs...>>
+    {
+        inline static constexpr bool value = true;
+    };
+
+    template <::uwvm2::parser::wasm::concepts::wasm_feature... Fs>
+    struct is_zero_default_constructible<::uwvm2::parser::wasm::standard::wasm1::features::final_local_function_type<Fs...>>
     {
         inline static constexpr bool value = true;
     };

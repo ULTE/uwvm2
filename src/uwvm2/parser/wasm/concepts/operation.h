@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-06
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -23,7 +23,7 @@
 #pragma once
 
 #if !(__cpp_pack_indexing >= 202311L)
-# error "UWVM requires at least C++26 standard compiler."
+# error "UWVM requires at least C++26 standard compiler. See https://en.cppreference.com/w/cpp/feature_test#cpp_pack_indexing"
 #endif
 
 #ifdef UWVM_MODULE
@@ -476,7 +476,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::concepts
                                      is_repeatable = true;
                                      return replacement_structure_followup_impl<T, replacement, Args...>(repeating);
                                  }
-                                 else { return type_wrapper<void>{}; }
+                                 else
+                                 {
+                                     return type_wrapper<void>{};
+                                 }
                              }.template operator()<Args...[I]>()),  // This is an overloaded comma expression
                          ...)
                     };
@@ -486,7 +489,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::concepts
                         // last one
                         return type_wrapper<Superseded>{};
                     }
-                    else { return ret; }
+                    else
+                    {
+                        return ret;
+                    }
                 }(::std::make_index_sequence<sizeof...(Args)>{});
             }
 

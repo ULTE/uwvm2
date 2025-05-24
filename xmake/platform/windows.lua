@@ -152,8 +152,8 @@ function windows_target()
                 add_cxflags("-march=i686")
             end
         elseif 
-            opt_name == "WS03SP1" or
-            opt_name == "WINXPSP2"
+            opt_name == "WS03" or
+            opt_name == "WINXP64"
                 then
             add_defines("_WIN32_WINNT=0x0502")
             add_defines("WINVER=0x0502")
@@ -167,7 +167,6 @@ function windows_target()
                 add_cxflags("-march=i686")
             end
         elseif 
-            opt_name == "WS03" or
             opt_name == "WINXP"
                 then
             add_defines("_WIN32_WINNT=0x0501")
@@ -380,8 +379,8 @@ function windows_target()
             add_syslinks("ntdll")
             add_syslinks("Shell32")
         elseif 
-            opt_name == "WS03SP1" or
-            opt_name == "WINXPSP2"
+            opt_name == "WS03" or
+            opt_name == "WINXP64"
                 then
             add_defines("_WIN32_WINNT=0x0502")
             add_defines("WINVER=0x0502")
@@ -389,7 +388,6 @@ function windows_target()
             add_syslinks("ntdll")
             add_syslinks("Shell32")
         elseif 
-            opt_name == "WS03" or
             opt_name == "WINXP"
                 then
             add_defines("_WIN32_WINNT=0x0501")

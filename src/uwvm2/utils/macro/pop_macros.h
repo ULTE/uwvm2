@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-23
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -26,6 +26,7 @@
 // #pragma once
 
 /// @brief      uwvm's macros
+#pragma pop_macro("UWVM_GNU_NODEBUG")
 #pragma pop_macro("UWVM_GNU_USED")
 #pragma pop_macro("UWVM_NOT_SUPPORT_SPECIAL_CHAR")
 #pragma pop_macro("UWVM_SUPPORT_INSTALL_PATH")

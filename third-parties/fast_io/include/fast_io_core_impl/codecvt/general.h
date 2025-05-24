@@ -184,7 +184,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 				}
 				else
 				{
-					dst += get_utf_code_units<encoding>(code, dst);
+					dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 				}
 			}
 		}
@@ -193,7 +193,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 	else
 	{
 #if (defined(_MSC_VER) && defined(_M_AMD64) && !defined(__clang__)) || \
-	(defined(__SSE__) && defined(__x86_64__) && __cpp_lib_is_constant_evaluated >= 201811L)
+	(defined(__SSE__) && defined(__SSE2__) && defined(__x86_64__) && __cpp_lib_is_constant_evaluated >= 201811L)
 		if constexpr (src_encoding != encoding_scheme::utf_ebcdic && encoding != encoding_scheme::utf_ebcdic &&
 					  1 == sizeof(src_char_type) && (1 == sizeof(dest_char_type) || encoding_is_utf(encoding)))
 		{
@@ -221,7 +221,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 							}
 							else
 							{
-								dst += get_utf_code_units<encoding>(code, dst);
+								dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 							}
 						}
 						else
@@ -235,7 +235,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 							}
 							else
 							{
-								dst += get_utf_code_units<encoding>(code, dst);
+								dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 							}
 						}
 					}
@@ -265,7 +265,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 				}
 				else
 				{
-					dst += get_utf_code_units<encoding>(code, dst);
+					dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 				}
 			}
 			else
@@ -278,7 +278,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 					}
 					else
 					{
-						*dst = static_cast<char8_t>(*src_first);
+						*dst = static_cast<dest_char_type>(static_cast<char8_t>(*src_first));
 					}
 					if constexpr (sizeof(dest_char_type) != 1 && encoding_is_utf(encoding) &&
 								  !is_native_scheme(encoding))
@@ -309,7 +309,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 						}
 						else
 						{
-							dst += get_utf_code_units<encoding>(code, dst);
+							dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 						}
 					}
 					else
@@ -331,7 +331,7 @@ general_code_cvt(src_char_type const *src_first, src_char_type const *src_last, 
 						}
 						else
 						{
-							dst += get_utf_code_units<encoding>(code, dst);
+							dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 						}
 					}
 				}
@@ -468,7 +468,7 @@ inline constexpr dest_char_type *general_code_cvt(state_type &__restrict state, 
 				}
 				else
 				{
-					dst += get_utf_code_units<encoding>(code, dst);
+					dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 				}
 				src_first += static_cast<::std::size_t>(bytes_src - bytes - state_size);
 			}
@@ -492,7 +492,7 @@ inline constexpr dest_char_type *general_code_cvt(state_type &__restrict state, 
 				}
 				else
 				{
-					dst += get_utf_code_units<encoding>(code, dst);
+					dst += get_utf_code_units<encoding>(static_cast<char32_t>(code), dst);
 				}
 				src_first += static_cast<::std::size_t>(static_cast<::std::size_t>(adv) - state_size);
 			}

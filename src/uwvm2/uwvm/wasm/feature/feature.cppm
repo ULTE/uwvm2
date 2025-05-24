@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-09
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -23,8 +23,8 @@
 module;
 
 // std
-# include <type_traits>
-# include <concepts>
+#include <type_traits>
+#include <concepts>
 
 export module uwvm2.uwvm.wasm.feature:feature;
 

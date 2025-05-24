@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-18
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -31,7 +31,8 @@ import fast_io;
 # include <concepts>
 # include <memory>
 // sys
-# if (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !defined(_WIN32) && !defined(_PICOLIBC__) && !(defined(__MSDOS__) || defined(__DJGPP__))
+# if (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !defined(_WIN32) && !defined(_PICOLIBC__) && !(defined(__MSDOS__) || defined(__DJGPP__)) &&              \
+     !defined(__wasm__)
 #  include <sys/mman.h>
 # endif
 // import
@@ -44,7 +45,8 @@ import fast_io;
 
 UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
 {
-#if (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !defined(_WIN32) && !defined(_PICOLIBC__) && !(defined(__MSDOS__) || defined(__DJGPP__))
+#if (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !defined(_WIN32) && !defined(_PICOLIBC__) && !(defined(__MSDOS__) || defined(__DJGPP__)) &&               \
+    !defined(__wasm__)
     namespace details::posix
     {
 # if defined(__DARWIN_C_LEVEL)
@@ -57,7 +59,8 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
 
     enum class madvise_flag
     {
-#if defined(_WIN32) || !((!defined(__NEWLIB__) || defined(__CYGWIN__)) && !(defined(__MSDOS__) || defined(__DJGPP__)) && !defined(_PICOLIBC__))
+#if defined(_WIN32) ||                                                                                                                                         \
+    !((!defined(__NEWLIB__) || defined(__CYGWIN__)) && !(defined(__MSDOS__) || defined(__DJGPP__)) && !defined(_PICOLIBC__) && !defined(__wasm__))
         normal,
         random,
         sequential,
@@ -150,12 +153,13 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
         {
             case madvise_flag::willneed:
             {
+                // "va" will not be modified, the pass parameter requires
                 void* va{const_cast<void*>(addr)};
                 ::fast_io::win32::nt::memory_range_entry mre{.VirtualAddress = va, .NumberOfBytes = length};
                 ::std::uint_least32_t VmInformation{0u};
                 ::fast_io::win32::nt::nt_set_information_virtual_memory<false>(reinterpret_cast<void*>(static_cast<::std::ptrdiff_t>(-1)),
                                                                                ::fast_io::win32::nt::virtual_memory_information_class::VmPrefetchInformation,
-                                                                               1,
+                                                                               1uz,
                                                                                ::std::addressof(mre),
                                                                                ::std::addressof(VmInformation),
                                                                                sizeof(::std::uint_least32_t));
@@ -163,13 +167,14 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
             }
             case madvise_flag::normal:
             {
+                // "va" will not be modified, the pass parameter requires
                 void* va{const_cast<void*>(addr)};
                 ::fast_io::win32::nt::memory_range_entry mre{.VirtualAddress = va, .NumberOfBytes = length};
                 ::std::uint_least32_t VmInformation{5u};  // Default priority is highest priority 5
                 ::fast_io::win32::nt::nt_set_information_virtual_memory<false>(
                     reinterpret_cast<void*>(static_cast<::std::ptrdiff_t>(-1)),
                     ::fast_io::win32::nt::virtual_memory_information_class::VmPagePriorityInformation,
-                    1,
+                    1uz,
                     ::std::addressof(mre),
                     ::std::addressof(VmInformation),
                     sizeof(::std::uint_least32_t));
@@ -177,20 +182,23 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
             }
             case madvise_flag::dontneed:
             {
+                // "va" will not be modified, the pass parameter requires
                 void* va{const_cast<void*>(addr)};
                 ::fast_io::win32::nt::memory_range_entry mre{.VirtualAddress = va, .NumberOfBytes = length};
                 ::std::uint_least32_t VmInformation{3u};  // Default priority is highest priority 5, set to 3 to lower priority
                 ::fast_io::win32::nt::nt_set_information_virtual_memory<false>(
                     reinterpret_cast<void*>(static_cast<::std::ptrdiff_t>(-1)),
                     ::fast_io::win32::nt::virtual_memory_information_class::VmPagePriorityInformation,
-                    1,
+                    1uz,
                     ::std::addressof(mre),
                     ::std::addressof(VmInformation),
                     sizeof(::std::uint_least32_t));
                 break;
             }
-            default:
-                [[unlikely]] { break; }
+            [[unlikely]] default:
+            {
+                break;
+            }
         }
 # elif (!defined(_WIN32_WINNT) || _WIN32_WINNT >= 0x0602) && !defined(_WIN32_WINDOWS)
         // win8
@@ -198,22 +206,27 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::madvise
         {
             case madvise_flag::willneed:
             {
+                // "va" will not be modified, the pass parameter requires
                 void* va{const_cast<void*>(addr)};
                 ::fast_io::win32::win32_memory_range_entry mre{.VirtualAddress = va, .NumberOfBytes = length};
-                ::fast_io::win32::PrefetchVirtualMemory(reinterpret_cast<void*>(static_cast<::std::ptrdiff_t>(-1)), 1, ::std::addressof(mre), 0);
+                ::fast_io::win32::PrefetchVirtualMemory(reinterpret_cast<void*>(static_cast<::std::ptrdiff_t>(-1)), 1uz, ::std::addressof(mre), 0);
                 break;
             }
-            default:
-                [[unlikely]] { break; }
+            [[unlikely]] default:
+            {
+                break;
+            }
         }
 # endif
-#elif (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !(defined(__MSDOS__) || defined(__DJGPP__)) && !defined(_PICOLIBC__)
+#elif (!defined(__NEWLIB__) || defined(__CYGWIN__)) && !(defined(__MSDOS__) || defined(__DJGPP__)) && !defined(_PICOLIBC__) && !defined(__wasm__)
 # if defined(__linux__) && defined(__NR_madvise)
         // linux syscall
         ::fast_io::system_call<__NR_madvise, int>(addr, length, static_cast<int>(flag));
-# elif _POSIX_C_SOURCE >= 200112L
+# elif !defined(_POSIX_C_SOURCE) || _POSIX_C_SOURCE >= 200112L
         // The madvise function first appeared in 4.4BSD.  The posix_madvise function
         // is part of IEEE 1003.1-2001 and was first implemented in Mac OS X 10.2.
+
+        // "addr" will not be modified, the pass parameter requires
         details::posix::posix_madvise(const_cast<void*>(addr), length, static_cast<int>(flag));
 # endif
 #endif

@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-27
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -41,6 +41,7 @@ import uwvm2.uwvm.wasm.base;
 import uwvm2.uwvm.wasm.storage;
 import uwvm2.uwvm.wasm.feature;
 import uwvm2.uwvm.wasm.custom;
+import :retval;
 #else
 // std
 # include <cstddef>
@@ -68,6 +69,7 @@ import uwvm2.uwvm.wasm.custom;
 # include <uwvm2/uwvm/wasm/storage/impl.h>
 # include <uwvm2/uwvm/wasm/feature/impl.h>
 # include <uwvm2/uwvm/wasm/custom/impl.h>
+# include "retval.h"
 #endif
 
 #ifndef UWVM_MODULE_EXPORT
@@ -91,9 +93,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
                                 ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
                                 u8"\" for more information.\n\n",
                                 ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL));
-            return -2;  // The specified file is not available or cannot be opened
+            return static_cast<int>(::uwvm2::uwvm::run::retval::load_error);
         }
 
+        // storage module name
         auto const module_name{::uwvm2::uwvm::cmdline::wasm_file_ppos->str};
 
 #ifdef __cpp_exceptions
@@ -126,12 +129,12 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
                                 u8"\n"
 # endif
             );
-            return -2;  // The specified file is not available or cannot be opened
+            return static_cast<int>(::uwvm2::uwvm::run::retval::load_error);
         }
 #endif
 
         // If not specified by the user, detect it
-        if(::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver == 0u)
+        if(::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver == static_cast<::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32>(0u))
         {
             ::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver = ::uwvm2::parser::wasm::binfmt::detect_wasm_binfmt_version(
                 reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cbegin()),
@@ -146,7 +149,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
 
         switch(::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver)
         {
-            case 0u:
+            case static_cast<::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32>(0u):
             {
 #ifndef UWVM_DISABLE_OUTPUT_WHEN_PARSE
                 ::fast_io::io::perr(
@@ -171,9 +174,9 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
                     ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL),
                     u8"\n\n");
 #endif
-                return -3;  // wasm parsing error
+                return static_cast<int>(::uwvm2::uwvm::run::retval::wasm_parser_error);  // wasm parsing error
             }
-            case 1u:
+            case static_cast<::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32>(1u):
             {
                 // handle exec module
                 {
@@ -227,7 +230,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
                                                 u8"\n\n");
                         }
 # endif
-                        return -3;  // wasm parsing error
+                        return static_cast<int>(::uwvm2::uwvm::run::retval::wasm_parser_error);
                     }
 #endif
                     // handle custom
@@ -235,46 +238,44 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
                         ::uwvm2::uwvm::wasm::custom::handle_binfmt1_custom_section(::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver1_storage,
                                                                                    ::uwvm2::uwvm::wasm::custom::custom_handle_funcs)};
                     // 0: success, others: fault
-                    if(custom_res) [[unlikely]]
-                    {
-                        return -4;  // custom handling error
-                    }
+                    if(custom_res) [[unlikely]] { return static_cast<int>(::uwvm2::uwvm::run::retval::wasm_parser_error); }
                 }
 
                 /// @todo handle import modules
 
                 break;
             }
-            default: [[unlikely]] {
+            [[unlikely]] default:
+            {
 #ifndef UWVM_DISABLE_OUTPUT_WHEN_PARSE
-                    ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
-                                        u8"uwvm: ",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
-                                        u8"[error] ",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
-                                        u8"(offset=",
-                                        ::fast_io::mnp::addrvw(4uz),
-                                        u8") Unknown Binary Format Version of WebAssembly: \"",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_CYAN),
-                                        ::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver,
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
-                                        u8"\".",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
-                                        u8"\nuwvm: ",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_LT_CYAN),
-                                        u8"[parser]",
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
-                                        u8" -> ",
-                                        ::uwvm2::uwvm::utils::memory::print_memory{
-                                            reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cbegin()),
-                                            reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cbegin()) + 4uz,
-                                            reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cend())},
-                                        ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL),
-                                        u8"\n\n");
+                ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
+                                    u8"uwvm: ",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
+                                    u8"[error] ",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
+                                    u8"(offset=",
+                                    ::fast_io::mnp::addrvw(4uz),
+                                    u8") Unknown Binary Format Version of WebAssembly: \"",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_CYAN),
+                                    ::uwvm2::uwvm::wasm::storage::execute_wasm_binfmt_ver,
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
+                                    u8"\".",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
+                                    u8"\nuwvm: ",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_LT_CYAN),
+                                    u8"[parser]",
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
+                                    u8" -> ",
+                                    ::uwvm2::uwvm::utils::memory::print_memory{
+                                        reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cbegin()),
+                                        reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cbegin()) + 4uz,
+                                        reinterpret_cast<::std::byte const*>(::uwvm2::uwvm::wasm::storage::execute_wasm_file.cend())},
+                                    ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL),
+                                    u8"\n\n");
 #endif
-                    return -3;  // wasm parsing error
-                }
+                return static_cast<int>(::uwvm2::uwvm::run::retval::wasm_parser_error);
+            }
         }
 
         // run vm
@@ -288,7 +289,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::run
             default: ::fast_io::unreachable();
         }
 
-        return 0;
+        return static_cast<int>(::uwvm2::uwvm::run::retval::ok);
     }
 }  // namespace uwvm2::uwvm::run
 

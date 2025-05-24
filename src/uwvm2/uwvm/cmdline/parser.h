@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-27
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -81,6 +81,14 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
         ::uwvm2::utils::debug::timer parsing_timer{u8"parsing parameters"};
 #endif
 
+        // No copies will be made here.
+        auto u8log_output_osr{::fast_io::operations::output_stream_ref(::uwvm2::uwvm::u8log_output)};
+        // Add raii locks while unlocking operations
+        ::fast_io::operations::decay::stream_ref_decay_lock_guard u8log_output_lg{
+            ::fast_io::operations::decay::output_stream_mutex_ref_decay(u8log_output_osr)};
+        // No copies will be made here.
+        auto u8log_output_ul{::fast_io::operations::decay::output_stream_unlocked_ref_decay(u8log_output_osr)};
+
         auto& pr{parsing_result};
         auto const& ht{::uwvm2::uwvm::cmdline::hash_table};
 
@@ -88,12 +96,13 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 #if 0 
         pr.clear();
 #endif
+
         pr.reserve(argc);
 
-        // If argc is 0, prohibit running
-        if(argc == 0) [[unlikely]]
+        // If argc is 0uz, prohibit running
+        if(!argc) [[unlikely]]
         {
-            ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+            ::fast_io::io::perr(u8log_output_ul,
                                 ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
                                 u8"uwvm: ",
                                 ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
@@ -104,6 +113,8 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                                 u8"\n\n");
             return parsing_return_val::returnm1;
         }
+
+        // argv_end > argv_begin
 
         auto curr_argv{argv};
 
@@ -154,7 +165,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                     // grammatical error
                     if(++curr_argv == argv_end) [[unlikely]]
                     {
-                        ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                        ::fast_io::io::perr(u8log_output_ul,
                                             ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
                                             u8"uwvm: ",
                                             ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
@@ -177,9 +188,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                         return parsing_return_val::returnm1;
                     }
 
-                    wasm_file_ppos = ::std::addressof(pr.emplace_back_unchecked(fast_io::u8cstring_view{::fast_io::mnp::os_c_str(*curr_argv)},
-                                                                                nullptr,
-                                                                                ::uwvm2::utils::cmdline::parameter_parsing_results_type::occupied_arg));  // wasm file
+                    wasm_file_ppos =
+                        ::std::addressof(pr.emplace_back_unchecked(fast_io::u8cstring_view{::fast_io::mnp::os_c_str(*curr_argv)},
+                                                                   nullptr,
+                                                                   ::uwvm2::utils::cmdline::parameter_parsing_results_type::occupied_arg));  // wasm file
 
                     for(++curr_argv; curr_argv != argv_end; ++curr_argv)
                     {
@@ -205,33 +217,45 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                             pr.emplace_back_unchecked(argv_str, para, ::uwvm2::utils::cmdline::parameter_parsing_results_type::parameter);
                         }
                     }
-                    else { pr.emplace_back_unchecked(argv_str, para, ::uwvm2::utils::cmdline::parameter_parsing_results_type::parameter); }
+                    else
+                    {
+                        pr.emplace_back_unchecked(argv_str, para, ::uwvm2::utils::cmdline::parameter_parsing_results_type::parameter);
+                    }
 
                     // The preprocessor that calls this function
                     // Preprocessing is used to jump directly to the backmarked section.
 
                     // If a signed integer is required for a subsequent argument,
                     // marking one bit back as occupied_arg prevents the negative sign from being misidentified as an argument prefix.
-                    if(para->pretreatment) { para->pretreatment(curr_argv, argv_end, pr); }
+
+                    if(para->pretreatment)
+                    {
+                        // Unlock with function call
+                        ::fast_io::operations::decay::unlock_stream_ref_decay_lock_guard u8log_output_ulg{u8log_output_lg};
+                        para->pretreatment(curr_argv, argv_end, pr);
+                    }
                 }
             }
-            else { pr.emplace_back_unchecked(argv_str, nullptr, ::uwvm2::utils::cmdline::parameter_parsing_results_type::arg); }
+            else
+            {
+                pr.emplace_back_unchecked(argv_str, nullptr, ::uwvm2::utils::cmdline::parameter_parsing_results_type::arg);
+            }
         }
 
-        //   "--run" (end)         "wasm file name"
-        // wasm_file_ppos - 1       wasm_file_ppos
-        auto const end_pos{wasm_file_ppos ? wasm_file_ppos - 1 : pr.end()};
+        // ...   "--run" (end)         "wasm file name" ...
+        // ... wasm_file_ppos - 1u      wasm_file_ppos  ...
+        auto const end_pos{wasm_file_ppos ? wasm_file_ppos - 1u : pr.end()};
 
         // Checking for wrong parameters vs. duplicates
         {
             bool shouldreturn{};
 
-            for(auto curr_pr{pr.begin() + 1}; curr_pr != end_pos; ++curr_pr)
+            for(auto curr_pr{pr.begin() + 1u}; curr_pr != end_pos; ++curr_pr)
             {
                 if(curr_pr->type == ::uwvm2::utils::cmdline::parameter_parsing_results_type::invalid_parameter) [[unlikely]]
                 {
                     shouldreturn = true;
-                    ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                    ::fast_io::io::perr(u8log_output_ul,
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
                                         u8"uwvm: ",
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
@@ -248,11 +272,11 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 
                     // Assumed size facilitates multiplicative optimization
 #if __has_cpp_attribute(assume)
-                    constexpr ::std::size_t smax{::std::numeric_limits<::std::size_t>::max() / 4u};
+                    constexpr ::std::size_t smax{::std::numeric_limits<::std::size_t>::max() / 4uz};
                     [[assume(str_size < smax)]];
 #endif
                     // First time variance requirement within 40%
-                    ::std::size_t const test_size{str_size * 4u / 10u};
+                    ::std::size_t const test_size{str_size * 4uz / 10uz};
                     ::std::size_t f_test_size{test_size};
 
                     for(auto const& j: ::uwvm2::uwvm::cmdline::parameter_lookup_table)
@@ -264,11 +288,16 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                         }
 
                         // Maximum stack size that will hit
-                        constexpr ::std::size_t shortest_path_stack_size{parameter_max_name_size + parameter_max_name_size * 4u / 10u + 1u};
+                        constexpr ::std::size_t shortest_path_stack_size{parameter_max_name_size + parameter_max_name_size * 4uz / 10uz + 1uz};
+
+                        // Addition may overflow, need to check size
+                        static_assert(shortest_path_stack_size > parameter_max_name_size, "addition overflow");
 
                         // Calculate the shortest path distance
-                        if(auto const dp_res{
-                               ::uwvm2::utils::cmdline::shortest_path<shortest_path_stack_size>(curr_pr->str.data(), curr_pr->str.size(), j.str.data(), j.str.size())};
+                        if(auto const dp_res{::uwvm2::utils::cmdline::shortest_path<shortest_path_stack_size>(curr_pr->str.data(),
+                                                                                                              curr_pr->str.size(),
+                                                                                                              j.str.data(),
+                                                                                                              j.str.size())};
                            dp_res <= test_size)
                         {
                             f_test_str = j.str;
@@ -279,12 +308,12 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                     if(f_test_str.empty())
                     {
                         // The most similar parameters were not found
-                        ::fast_io::io::perr(::uwvm2::uwvm::u8log_output, ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL), u8"\n");
+                        ::fast_io::io::perr(u8log_output_ul, ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL), u8"\n");
                     }
                     else
                     {
                         // Output the most similar parameter
-                        ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                        ::fast_io::io::perr(u8log_output_ul,
                                             ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_WHITE),
                                             u8" (did you mean: ",
                                             ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_GREEN),
@@ -298,7 +327,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
                 else if(curr_pr->type == ::uwvm2::utils::cmdline::parameter_parsing_results_type::duplicate_parameter) [[unlikely]]
                 {
                     shouldreturn = true;
-                    ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                    ::fast_io::io::perr(u8log_output_ul,
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
                                         u8"uwvm: ",
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
@@ -314,7 +343,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 
             if(shouldreturn) [[unlikely]]
             {
-                ::fast_io::io::perrln(::uwvm2::uwvm::u8log_output);
+                ::fast_io::io::perrln(u8log_output_ul);
                 return parsing_return_val::returnm1;
             }
         }
@@ -324,7 +353,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
             bool needexit{};
             bool needterminal{};
 
-            for(auto curr_pr{pr.begin() + 1}; curr_pr != end_pos; ++curr_pr)
+            for(auto curr_pr{pr.begin() + 1u}; curr_pr != end_pos; ++curr_pr)
             {
                 if(curr_pr->para == nullptr)
                 {
@@ -334,7 +363,14 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 
                 if(auto const cb{curr_pr->para->handle}; cb != nullptr)
                 {
-                    ::uwvm2::utils::cmdline::parameter_return_type const res{cb(pr.begin(), curr_pr, pr.end())};
+                    ::uwvm2::utils::cmdline::parameter_return_type res;  // No initialization necessary
+
+                    {
+                        // Unlock with function call
+                        ::fast_io::operations::decay::unlock_stream_ref_decay_lock_guard u8log_output_ulg{u8log_output_lg};
+                        res = cb(pr.begin(), curr_pr, pr.end());
+                    }
+
                     switch(res)
                     {
                         case ::uwvm2::utils::cmdline::parameter_return_type::def: break;
@@ -357,13 +393,13 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 
             bool shouldreturn{};
 
-            for(auto curr_pr{pr.begin() + 1}; curr_pr != end_pos; ++curr_pr)
+            for(auto curr_pr{pr.begin() + 1u}; curr_pr != end_pos; ++curr_pr)
             {
                 if(curr_pr->type == ::uwvm2::utils::cmdline::parameter_parsing_results_type::arg) [[unlikely]]
                 {
                     shouldreturn = true;
 
-                    ::fast_io::io::perr(::uwvm2::uwvm::u8log_output,
+                    ::fast_io::io::perr(u8log_output_ul,
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RST_ALL_AND_SET_WHITE),
                                         u8"uwvm: ",
                                         ::fast_io::mnp::cond(::uwvm2::uwvm::utils::ansies::put_color, UWVM_COLOR_U8_RED),
@@ -379,7 +415,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline
 
             if(shouldreturn) [[unlikely]]
             {
-                ::fast_io::io::perrln(::uwvm2::uwvm::u8log_output);
+                ::fast_io::io::perrln(u8log_output_ul);
                 return parsing_return_val::returnm1;
             }
         }

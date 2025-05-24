@@ -1,7 +1,7 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
@@ -10,7 +10,7 @@
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-09
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -116,10 +116,11 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
 
         ::uwvm2::parser::wasm::standard::wasm1::features::final_function_type<Fs...> ft{};
 
-        // For safety, add parentheses to indicate the scope
+        // Add scope space to prevent subsequent access to variables that should not be accessed
+
         // parameter
         {
-            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 para_len{};
+            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 para_len;  // No initialization necessary
             auto const [next_para_len, err_para_len]{::fast_io::parse_by_scan(reinterpret_cast<char8_t_const_may_alias_ptr>(section_curr),
                                                                               reinterpret_cast<char8_t_const_may_alias_ptr>(section_end),
                                                                               ::fast_io::mnp::leb128_get(para_len))};
@@ -187,7 +188,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
             // [                 safe                 ] unsafe (could be the section_end)
             //                                          ^^ section_curr
 
-            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 result_len{};
+            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 result_len;  // No initialization necessary
             auto const [next_result_len, err_result_len]{::fast_io::parse_by_scan(reinterpret_cast<char8_t_const_may_alias_ptr>(section_curr),
                                                                                   reinterpret_cast<char8_t_const_may_alias_ptr>(section_end),
                                                                                   ::fast_io::mnp::leb128_get(result_len))};
@@ -293,15 +294,14 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
                 // Note that section_curr may be equal to section_end, which needs to be checked
                 return handle_type_prefix_functype(sec_adl, module_storage, section_curr, section_end, err, fs_para);
             }
-            default:
-                [[unlikely]]
-                {
-                    err.err_curr = prefix_module_ptr;
-                    err.err_selectable.u8 =
-                        static_cast<::std::underlying_type_t<::uwvm2::parser::wasm::standard::wasm1::features::final_value_type_t<Fs...>>>(prefix);
-                    err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::illegal_type_prefix;
-                    ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
-                }
+            [[unlikely]] default:
+            {
+                err.err_curr = prefix_module_ptr;
+                err.err_selectable.u8 =
+                    static_cast<::std::underlying_type_t<::uwvm2::parser::wasm::standard::wasm1::features::final_value_type_t<Fs...>>>(prefix);
+                err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::illegal_type_prefix;
+                ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
+            }
         }
     }
 
@@ -345,7 +345,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         // [        safe       ] | unsafe (could be the section_end)
         //                         ^^ section_curr
 
-        ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 type_count{};
+        ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 type_count;  // No initialization necessary
 
         using char8_t_const_may_alias_ptr UWVM_GNU_MAY_ALIAS = char8_t const*;
 
@@ -364,7 +364,24 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         // [             safe                  ] unsafe (could be the section_end)
         //                       ^^ section_curr
 
-        typesec.types.reserve(type_count);
+        // The size_t of some platforms is smaller than u32, in these platforms you need to do a size check before conversion
+        constexpr auto size_t_max{::std::numeric_limits<::std::size_t>::max()};
+        constexpr auto wasm_u32_max{::std::numeric_limits<::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32>::max()};
+        if constexpr(size_t_max < wasm_u32_max)
+        {
+            // The size_t of current platforms is smaller than u32, in these platforms you need to do a size check before conversion
+            if(type_count > size_t_max) [[unlikely]]
+            {
+                err.err_curr = section_curr;
+                err.err_selectable.u64 = static_cast<::std::uint_least64_t>(type_count);
+                err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::size_exceeds_the_maximum_value_of_size_t;
+                ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
+            }
+        }
+
+        typesec.types.reserve(static_cast<::std::size_t>(type_count));
+
+        ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 type_counter{};  // use for check
 
         section_curr = reinterpret_cast<::std::byte const*>(type_count_next);  // never out of bounds
         // No explicit checking required because ::fast_io::parse_by_scan self-checking (::fast_io::parse_code::end_of_file)
@@ -373,13 +390,23 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         // [              safe                 ] unsafe (could be the section_end)
         //                                       ^^ section_curr
 
-        ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 type_counter{};
-
-        while(section_curr != section_end)
+        while(section_curr != section_end) [[likely]]
         {
+            // Ensuring the existence of valid information
+
             // [... prefix] ...
             // [   safe   ] unsafe (could be the section_end)
             //      ^^ section_curr
+
+            // check type counter
+            // Ensure content is available before counting (section_curr != section_end)
+            if(++type_counter > type_count) [[unlikely]]
+            {
+                err.err_curr = section_curr;
+                err.err_selectable.u32 = type_count;
+                err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::type_section_resolved_exceeded_the_actual_number;
+                ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
+            }
 
             auto const prefix_module_ptr{section_curr};
             // [... prefix] ...
@@ -394,7 +421,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
             // No sense check, never cross the line because (section_curr < section_end)
 
             static_assert(sizeof(prefix) == 1);
-            // Size equal to one does not need to do small end-order conversion
+            // Size equal to one does not need to do little-endian conversion
 
             ++section_curr;
             // [... prefix] ...
@@ -405,15 +432,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
 
             // check has func
             static_assert(::uwvm2::parser::wasm::standard::wasm1::features::has_type_prefix_handler<Fs...>, "define_type_prefix_handler(...) not found");
-            
-            // check type count
-            if(++type_counter > type_count) [[unlikely]]
-            {
-                err.err_curr = section_curr;
-                err.err_selectable.u32 = type_count;
-                err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::type_section_resolved_exceeded_the_actual_number;
-                ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
-            }
 
             // handle it
             section_curr = define_type_prefix_handler(sec_adl, prefix, module_storage, section_curr, section_end, err, fs_para, prefix_module_ptr);
@@ -429,7 +447,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
             err.err_curr = section_curr;
             err.err_selectable.u32arr[0] = type_counter;
             err.err_selectable.u32arr[1] = type_count;
-            err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::type_section_resolved_exceeded_the_actual_number;
+            err.err_code = ::uwvm2::parser::wasm::base::wasm_parse_error_code::type_section_resolved_not_match_the_actual_number;
             ::uwvm2::parser::wasm::base::throw_wasm_parse_code(::fast_io::parse_code::invalid);
         }
     }

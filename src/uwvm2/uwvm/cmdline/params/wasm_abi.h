@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-31
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -48,8 +48,8 @@ UWVM_MODULE_EXPORT namespace uwvm2::uwvm::cmdline::paras
         inline bool wasm_abi_is_exist{};
         inline constexpr ::fast_io::u8string_view wasm_abi_alias{u8"-Wa"};
         extern "C++" ::uwvm2::utils::cmdline::parameter_return_type wasm_abi_callback(::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                     ::uwvm2::utils::cmdline::parameter_parsing_results*,
-                                                                                     ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept;
+                                                                                      ::uwvm2::utils::cmdline::parameter_parsing_results*,
+                                                                                      ::uwvm2::utils::cmdline::parameter_parsing_results*) noexcept;
 
     }  // namespace details
 

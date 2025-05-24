@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-24
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -67,7 +67,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::cmdline
         else
         {
             if UWVM_IF_CONSTEVAL { d = ::new ::std::size_t[y_length + 1uz]; }
-            else { d = Alloc::allocate(y_length + 1uz); }
+            else
+            {
+                d = Alloc::allocate(y_length + 1uz);
+            }
         }
 
         for(::std::size_t j{}; j <= y_length; j++) { d[j] = j; }
@@ -96,7 +99,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::cmdline
         if constexpr(!Stack_Len)
         {
             if UWVM_IF_CONSTEVAL { ::delete[] d; }
-            else { Alloc::deallocate_n(d, y_length + 1uz); }
+            else
+            {
+                Alloc::deallocate_n(d, y_length + 1uz);
+            }
         }
 
         return ret;

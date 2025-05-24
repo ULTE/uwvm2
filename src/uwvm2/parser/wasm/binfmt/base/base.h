@@ -1,7 +1,7 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
@@ -10,7 +10,7 @@
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-09
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -52,21 +52,25 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::binfmt
 
     inline constexpr bool is_wasm_file_unchecked(::std::byte const* module_curr) noexcept
     {
-        // [00 61 73 6D Version ...] (end)
-        // [           safe        ]
+        // assuming:
+        // [00 61 73 6D] Version ... (end)
+        // [   safe    ]
         //  ^^ module_curr
+
         return ::fast_io::freestanding::my_memcmp(module_curr, u8"\0asm", 4uz) == 0;
     }
 
     inline constexpr ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 detect_wasm_binfmt_version_unchecked(::std::byte const* module_curr) noexcept
     {
+        // assuming:
         // [00 61 73 6D Version ...] (end)
         // [           safe        ] unsafe
         //              ^^ module_curr
+
         ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 temp{};
         ::fast_io::freestanding::my_memcpy(::std::addressof(temp), module_curr, sizeof(::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32));
         static_assert(sizeof(temp) > 1);
-        // Size of temp greater than one requires small end-order conversion
+        // Size of temp greater than one requires little-endian conversion
         temp = ::fast_io::little_endian(temp);
         return temp;
     }

@@ -1,7 +1,7 @@
-/*************************************************************
+﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
@@ -10,7 +10,7 @@
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-05-03
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -118,7 +118,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         ::fast_io::freestanding::my_memcpy(::std::addressof(flags), curr, sizeof(flags));
 
         static_assert(sizeof(flags) == 1);
-        // Size equal to one does not need to do small end-order conversion
+        // Size equal to one does not need to do little-endian conversion
 
         if(flags != 0u && flags != 1u) [[unlikely]]
         {
@@ -134,6 +134,8 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         // [safe] unsafe (could be the end)
         //        ^^ curr
 
+        // Add scope space to prevent subsequent access to variables that should not be accessed
+
         {
             // [flag] min ... max (end)
             // [safe] unsafe (could be the end)
@@ -143,7 +145,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
             // set present_max
             limit_r.present_max = false;
 
-            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 n_min{};
+            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 n_min;  // No initialization necessary
             auto const [next_n_min, err_n_min]{::fast_io::parse_by_scan(reinterpret_cast<char8_t_const_may_alias_ptr>(curr),
                                                                         reinterpret_cast<char8_t_const_may_alias_ptr>(end),
                                                                         ::fast_io::mnp::leb128_get(n_min))};
@@ -178,7 +180,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
             // set present_max
             limit_r.present_max = true;
 
-            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 n_max{};
+            ::uwvm2::parser::wasm::standard::wasm1::type::wasm_u32 n_max;  // No initialization necessary
             auto const [next_n_max, err_n_max]{::fast_io::parse_by_scan(reinterpret_cast<char8_t_const_may_alias_ptr>(curr),
                                                                         reinterpret_cast<char8_t_const_may_alias_ptr>(end),
                                                                         ::fast_io::mnp::leb128_get(n_max))};
@@ -238,7 +240,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         ::fast_io::freestanding::my_memcpy(::std::addressof(elemtype), curr, sizeof(elemtype));
 
         static_assert(sizeof(elemtype) == 1);
-        // Size equal to one does not need to do small end-order conversion
+        // Size equal to one does not need to do little-endian conversion
 
         // The element type elemtype must be funcref
         if(elemtype != 0x70) [[unlikely]]
@@ -326,7 +328,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         ::fast_io::freestanding::my_memcpy(::std::addressof(gvt), curr, sizeof(gvt));
 
         static_assert(sizeof(gvt) == 1);
-        // Size equal to one does not need to do small end-order conversion
+        // Size equal to one does not need to do little-endian conversion
 
         if(!is_valid_value_type(gvt)) [[unlikely]]
         {
@@ -360,7 +362,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::features
         ::fast_io::freestanding::my_memcpy(::std::addressof(mut), curr, sizeof(mut));
 
         static_assert(sizeof(mut) == 1);
-        // Size equal to one does not need to do small end-order conversion
+        // Size equal to one does not need to do little-endian conversion
 
         if(mut > 1) [[unlikely]]
         {

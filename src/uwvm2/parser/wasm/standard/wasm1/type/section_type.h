@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-31
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -75,8 +75,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     struct memory_type
     {
         limits_type limits{};
-
-        bool is_exported{};
     };
 
     /// @brief      Table Types
@@ -86,11 +84,9 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     struct table_type
     {
         limits_type limits{};
-        
+
         inline static constexpr ::uwvm2::parser::wasm::standard::wasm1::type::wasm_byte reftype{
             static_cast<::uwvm2::parser::wasm::standard::wasm1::type::wasm_byte>(0x70)};
-
-        bool is_exported{};
     };
 
     /// @brief      Global Types
@@ -101,8 +97,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     {
         ::uwvm2::parser::wasm::standard::wasm1::type::value_type type{};
         bool is_mutable{};
-
-        bool is_exported{};
     };
 
     /// @brief      External Types
@@ -297,3 +291,8 @@ UWVM_MODULE_EXPORT namespace fast_io::freestanding
         inline static constexpr bool value = true;
     };
 }  // namespace fast_io::freestanding
+
+#ifndef UWVM_MODULE
+// macro
+# include <uwvm2/parser/wasm/feature/feature_pop_macro.h>
+#endif

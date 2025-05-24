@@ -1,202 +1,138 @@
+# **Anti-Sideloading Hosted Platform License v1.0**  
+**First Published: May 23, 2025**  
+**Copyright © 2025 UlteSoft Open Source Organization**  
+**Licensed under the Anti-Sideloading Hosted Platform License v1.0 (ASHP-1.0)**  
+**Everyone is permitted to copy and distribute verbatim copies of this license document, but modification is prohibited.**  
 
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
 
-   TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+## **1. Definitions**  
+### 1.1 **"Hosted Platform"** means an execution environment providing:  
+    (a) A full operating system supporting standard libraries (e.g., libc implementations) and OS APIs (filesystem, threads, dynamic memory management);  
+    (b) Application binary interface (ABI) stability for user-space programs.  
 
-   1. Definitions.
+### 1.2 **"Platform Triplet"**  
+A machine-readable identifier structured as `<architecture>[-vendor][-system][-extra]`, where:  
+- **Architecture** (mandatory): Specifies the CPU instruction set (e.g., `x86_64`, `aarch64`, `riscv64`).  
+- **Vendor** (optional): Identifies the platform vendor or maintainer (e.g., `apple`, `microsoft`, `gnu`). Omitted if vendor neutrality is required (denoted as `unknown`).  
+- **System** (mandatory): Defines the base operating system or kernel (e.g., `linux`, `darwin`, `windows`).  
+- **Extra** (optional): Provides disambiguation for OS variants or critical runtime environments (e.g., `musl`, `android31`, `uefi`).  
 
-      "License" shall mean the terms and conditions for use, reproduction,
-      and distribution as defined by Sections 1 through 9 of this document.
+#### **Format Rules**:  
+- The Triplet must uniquely identify the Hosted Platform's execution environment.  
+- Omitted fields shall be replaced with empty segments, but the hierarchical structure must retain at least `<architecture>-system` (e.g., `armv7-linux-android` or `x86_64-unknown-freebsd`).  
+- System distributors must document Triplet construction rules in machine-readable manifests.  
 
-      "Licensor" shall mean the copyright owner or entity authorized by
-      the copyright owner that is granting the License.
+#### **Examples**:  
+- `x86_64-pc-windows-msvc` (Full specification)  
+- `aarch64-apple-darwin` (Omitted `extra`)  
+- `riscv64-unknown-linux-openwrt` (Generic vendor)  
+- `armv7-linux-android` (Omitted vendor, `android` as `extra`)  
 
-      "Legal Entity" shall mean the union of the acting entity and all
-      other entities that control, are controlled by, or are under common
-      control with that entity. For the purposes of this definition,
-      "control" means (i) the power, direct or indirect, to cause the
-      direction or management of such entity, whether by contract or
-      otherwise, or (ii) ownership of fifty percent (50%) or more of the
-      outstanding shares, or (iii) beneficial ownership of such entity.
+#### **Technical Rationale**  
+This extended Triplet format:  
+1. **Backward Compatibility**: Maintains compatibility with legacy `<architecture-vendor-system>` conventions (e.g., GNU triplets).  
+2. **OS Precision**: The `extra` field allows granular identification of:  
+    - Libc implementations (`gnu`, `musl`, `bionic`)  
+    - Runtime environments (`win32`, `coreclr`, `nodejs`)  
+    - Security contexts (`sel4`, `tee`, `sgx`)  
+3. **Vendor Neutrality**: Explicit `unknown` vendor designation prevents ambiguous commercial claims.  
 
-      "You" (or "Your") shall mean an individual or Legal Entity
-      exercising permissions granted by this License.
+#### **Compliance Implications**  
+- A Platform Triplet `armv8-unknown-linux-android` and `armv8-google-linux-android` are considered **distinct** due to differing vendors.  
+- Triplets without `extra` (e.g., `x86_64-unknown-linux`) imply the **default** runtime environment for that OS.  
 
-      "Source" form shall mean the preferred form for making modifications,
-      including but not limited to software source code, documentation
-      source, and configuration files.
+#### **Fork Differentiation**
 
-      "Object" form shall mean any form resulting from mechanical
-      transformation or translation of a Source form, including but
-      not limited to compiled object code, generated documentation,
-      and conversions to other media types.
+1. **Fork Differentiation**  
+    Derivative OS versions **must** declare distinct `variant` values from their base systems:
+    * OpenHarmony: aarch64-linux-ohos (Compliant)  
+    * HarmonyNEXT: aarch64-linux-ohos-harmony_next (Violates §3.1) 
 
-      "Work" shall mean the work of authorship, whether in Source or
-      Object form, made available under the License, as indicated by a
-      copyright notice that is included in or attached to the work
-      (an example is provided in the Appendix below).
+2. **Vendor-System Binding**  
+    * Darwin (generic): unknown-apple-darwin (Compliant)
+    * macOS: unknown-apple-darwin-macos (Compliant)
+    * iOS: aarch64-apple-darwin-ios (Violates §3.1) 
 
-      "Derivative Works" shall mean any work, whether in Source or Object
-      form, that is based on (or derived from) the Work and for which the
-      editorial revisions, annotations, elaborations, or other modifications
-      represent, as a whole, an original work of authorship. For the purposes
-      of this License, Derivative Works shall not include works that remain
-      separable from, or merely link (or bind by name) to the interfaces of,
-      the Work and Derivative Works thereof.
+3. **Mandatory Requirements:**  
+    (a) **Technical Descriptor Obligation**  
+        Any modification to the original platform's sideloading policy **must** be reflected through unique technical descriptors in the `variant` field.  
 
-      "Contribution" shall mean any work of authorship, including
-      the original version of the Work and any modifications or additions
-      to that Work or Derivative Works thereof, that is intentionally
-      submitted to Licensor for inclusion in the Work by the copyright owner
-      or by an individual or Legal Entity authorized to submit on behalf of
-      the copyright owner. For the purposes of this definition, "submitted"
-      means any form of electronic, verbal, or written communication sent
-      to the Licensor or its representatives, including but not limited to
-      communication on electronic mailing lists, source code control systems,
-      and issue tracking systems that are managed by, or on behalf of, the
-      Licensor for the purpose of discussing and improving the Work, but
-      excluding communication that is conspicuously marked or otherwise
-      designated in writing by the copyright owner as "Not a Contribution."
+    (b) **Violation Annotation Rules**  
+        Platforms violating §3.1 **shall** be identified with **verbatim violation markers** in their triplets:  
+        ``` 
+        {architecture}-{vendor}-{system}-{violation_type}_{technical_descriptor}  
+        ```  
 
-      "Contributor" shall mean Licensor and any individual or Legal Entity
-      on behalf of whom a Contribution has been received by Licensor and
-      subsequently incorporated within the Work.
+#### **Fork Identification Protocol**  
+    Platforms must implement automated variant detection:
+    - Hosted Platforms must implement machine-verifiable triplet generation through their native build toolchains.
 
-   2. Grant of Copyright License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      copyright license to reproduce, prepare Derivative Works of,
-      publicly display, publicly perform, sublicense, and distribute the
-      Work and such Derivative Works in Source or Object form.
+### 1.3 **"Sideloading"** means installing software outside the Hosted Platform’s curated distribution channels.  
 
-   3. Grant of Patent License. Subject to the terms and conditions of
-      this License, each Contributor hereby grants to You a perpetual,
-      worldwide, non-exclusive, no-charge, royalty-free, irrevocable
-      (except as stated in this section) patent license to make, have made,
-      use, offer to sell, sell, import, and otherwise transfer the Work,
-      where such license applies only to those patent claims licensable
-      by such Contributor that are necessarily infringed by their
-      Contribution(s) alone or by combination of their Contribution(s)
-      with the Work to which such Contribution(s) was submitted. If You
-      institute patent litigation against any entity (including a
-      cross-claim or counterclaim in a lawsuit) alleging that the Work
-      or a Contribution incorporated within the Work constitutes direct
-      or contributory patent infringement, then any patent licenses
-      granted to You under this License for that Work shall terminate
-      as of the date such litigation is filed.
+## **2. License Grant**  
+### 2.1 **Copyright License**: Subject to Section 3, You are granted a perpetual, worldwide, non-exclusive license to:  
+    (a) Use, reproduce, and distribute the Work;  
+    (b) Create Derivative Works;  
+    (c) Publicly perform/display the Work.  
 
-   4. Redistribution. You may reproduce and distribute copies of the
-      Work or Derivative Works thereof in any medium, with or without
-      modifications, and in Source or Object form, provided that You
-      meet the following conditions:
+### 2.2 **Patent License**: Contributors grant You a non-exclusive, royalty-free patent license to make/use/sell the Work.  
 
-      (a) You must give any other recipients of the Work or
-          Derivative Works a copy of this License; and
+## **3. Conditions and Limitations**  
+### **3.1 Hosted Platform Compliance**  
+Any use of the Work (original or modified) on a Hosted Platform requires:  
+    (a) The Platform Triplet must allow **bit-for-bit compatible binaries** to execute via Sideloading;  
+    (b) Platform vendors must publish verifiable proofs of compliance through:  
+        i. Reproducible build toolchains;  
+        ii. Cryptographic attestation of Platform Triplet constraints;  
+        iii. Open test suites validating sideloading capabilities.  
 
-      (b) You must cause any modified files to carry prominent notices
-          stating that You changed the files; and
+### **3.2 Distribution Requirements**  
+    (a) All copies must retain copyright/patent/license notices;  
+    (b) Derivative Works must state prominent changes from the original;  
+    (c) Source distributions must include a `PLATFORM_COMPLIANCE.md` file documenting Sideloading guarantees.  
 
-      (c) You must retain, in the Source form of any Derivative Works
-          that You distribute, all copyright, patent, trademark, and
-          attribution notices from the Source form of the Work,
-          excluding those notices that do not pertain to any part of
-          the Derivative Works; and
+### **3.3 Platform Enforcement**  
+If a Hosted Platform restricts Sideloading for a specific Platform Triplet:  
+    (a) All software targeting that Triplet is prohibited from using the Work;  
+    (b) Platform vendors must issue public revocation notices;  
+    (c) Affected Triplets are blacklisted in the reference compliance registry.  
 
-      (d) If the Work includes a "NOTICE" text file as part of its
-          distribution, then any Derivative Works that You distribute must
-          include a readable copy of the attribution notices contained
-          within such NOTICE file, excluding those notices that do not
-          pertain to any part of the Derivative Works, in at least one
-          of the following places: within a NOTICE text file distributed
-          as part of the Derivative Works; within the Source form or
-          documentation, if provided along with the Derivative Works; or,
-          within a display generated by the Derivative Works, if and
-          wherever such third-party notices normally appear. The contents
-          of the NOTICE file are for informational purposes only and
-          do not modify the License. You may add Your own attribution
-          notices within Derivative Works that You distribute, alongside
-          or as an addendum to the NOTICE text from the Work, provided
-          that such additional attribution notices cannot be construed
-          as modifying the License.
+## **4. Technical Validation**  
+### 4.1 **Compliance Proof**: Platform vendors must provide:  
+    (a) A formal specification of Platform Triplet generation rules;  
+    (b) SBOM (Software Bill of Materials) hashes for all ABI-critical components;  
 
-      You may add Your own copyright statement to Your modifications and
-      may provide additional or different license terms and conditions
-      for use, reproduction, or distribution of Your modifications, or
-      for any such Derivative Works as a whole, provided Your use,
-      reproduction, and distribution of the Work otherwise complies with
-      the conditions stated in this License.
+### 4.2 **Attestation Protocol**: Compliance evidence shall be signed using W3C Verifiable Credentials and published in a decentralized ledger.  
 
-   5. Submission of Contributions. Unless You explicitly state otherwise,
-      any Contribution intentionally submitted for inclusion in the Work
-      by You to the Licensor shall be under the terms and conditions of
-      this License, without any additional terms or conditions.
-      Notwithstanding the above, nothing herein shall supersede or modify
-      the terms of any separate license agreement you may have executed
-      with Licensor regarding such Contributions.
+### 4.3 **Application-Layer Security Obligations**  
+Any software ("Application") built upon a Hosted Platform using this Work **must** implement technical safeguards to ensure the **secure execution of sideloaded components**.
 
-   6. Trademarks. This License does not grant permission to use the trade
-      names, trademarks, service marks, or product names of the Licensor,
-      except as required for reasonable and customary use in describing the
-      origin of the Work and reproducing the content of the NOTICE file.
+## **5. Termination**  
+Failure to comply with Section 3 automatically terminates all rights. Termination does not affect parties in compliance.  
 
-   7. Disclaimer of Warranty. Unless required by applicable law or
-      agreed to in writing, Licensor provides the Work (and each
-      Contributor provides its Contributions) on an "AS IS" BASIS,
-      WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-      implied, including, without limitation, any warranties or conditions
-      of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
-      PARTICULAR PURPOSE. You are solely responsible for determining the
-      appropriateness of using or redistributing the Work and assume any
-      risks associated with Your exercise of permissions under this License.
+## **6. Disclaimer**  
+**UNLESS REQUIRED BY APPLICABLE LAW, THE WORK IS PROVIDED "AS IS" WITHOUT WARRANTIES. IN NO EVENT SHALL CONTRIBUTORS BE LIABLE FOR DIRECT/INDIRECT DAMAGES.**  
 
-   8. Limitation of Liability. In no event and under no legal theory,
-      whether in tort (including negligence), contract, or otherwise,
-      unless required by applicable law (such as deliberate and grossly
-      negligent acts) or agreed to in writing, shall any Contributor be
-      liable to You for damages, including any direct, indirect, special,
-      incidental, or consequential damages of any character arising as a
-      result of this License or out of the use or inability to use the
-      Work (including but not limited to damages for loss of goodwill,
-      work stoppage, computer failure or malfunction, or any and all
-      other commercial damages or losses), even if such Contributor
-      has been advised of the possibility of such damages.
+## **7. Jurisdictional Neutrality & Enforcement**  
+### **7.1 Sovereign Immunity**  
+This License and all rights granted herein are expressly exempt from the jurisdictional control of any national government, state apparatus, or regulatory body, including but not limited to:  
+- Legislative frameworks of the United States (e.g., CFIUS regulations, EAR export controls)  
+- EU Digital Markets Act platform governance mechanisms  
+- National cybersecurity laws requiring backdoor access  
 
-   9. Accepting Warranty or Additional Liability. While redistributing
-      the Work or Derivative Works thereof, You may choose to offer,
-      and charge a fee for, acceptance of support, warranty, indemnity,
-      or other liability obligations and/or rights consistent with this
-      License. However, in accepting such obligations, You may act only
-      on Your own behalf and on Your sole responsibility, not on behalf
-      of any other Contributor, and only if You agree to indemnify,
-      defend, and hold each Contributor harmless for any liability
-      incurred by, or claims asserted against, such Contributor by reason
-      of your accepting any such warranty or additional liability.
+### **7.2 Dispute Resolution Protocol**  
+Notwithstanding Section 4.1, violations of this License shall be resolved through binding arbitration under:  
+- **United Nations Commission on International Trade Law (UNCITRAL) Rules**  
+- **Seat of Arbitration**: Geneva, Switzerland  
+- **Enforcement**: Awards shall be enforceable under the New York Convention 1958  
 
-   END OF TERMS AND CONDITIONS
+### **7.3 Limited Waiver**  
+By exercising rights under this License, all parties consent to:  
+    (a) Personal jurisdiction in arbitration proceedings  
+    (b) Enforcement of awards through national courts as needed  
 
-   APPENDIX: How to apply the Apache License to your work.
+---
 
-      To apply the Apache License to your work, attach the following
-      boilerplate notice, with the fields enclosed by brackets "[]"
-      replaced with your own identifying information. (Don't include
-      the brackets!)  The text should be enclosed in the appropriate
-      comment syntax for the file format. We also recommend that a
-      file or class name and description of purpose be included on the
-      same "printed page" as the copyright notice for easier
-      identification within third-party archives.
+**SPDX Identifier**: `ASHP-1.0`  
+**Compatibility**: Combines Apache-2.0 patent/copyright clauses with platform freedom constraints.  
 
-   Copyright (c) 2025-present UlteSoft. All rights reserved.
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.

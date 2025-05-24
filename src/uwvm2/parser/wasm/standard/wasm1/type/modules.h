@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-05
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -64,10 +64,7 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     /// @see        WebAssembly Release 1.0 (2019-07-20) § 2.5.2
     struct local_function_type
     {
-        ::fast_io::u8string_view custom_name{};  // The name used for the data segment
-
         ::uwvm2::parser::wasm::standard::wasm1::type::function_type const* func_type{};
-        bool is_exported{};
     };
 
     /// @brief      Functions
@@ -76,8 +73,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     /// @see        WebAssembly Release 1.0 (2019-07-20) § 2.5.3
     struct local_entry
     {
-        ::fast_io::u8string_view custom_name{};  // The name used for the data segment
-
         indices count{};
         ::uwvm2::parser::wasm::standard::wasm1::type::value_type type{};
     };
@@ -100,8 +95,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     /// @see        WebAssembly Release 1.0 (2019-07-20) § 2.5.11
     struct import_type
     {
-        ::fast_io::u8string_view custom_name{};  // The name used for the data segment
-
         ::fast_io::u8string_view module_name{};
         ::fast_io::u8string_view extern_name{};
         ::uwvm2::parser::wasm::standard::wasm1::type::external_types importdesc{};
@@ -131,8 +124,6 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::standard::wasm1::type
     /// @see        WebAssembly Release 1.0 (2019-07-20) § 2.5.6
     struct local_global_type
     {
-        ::fast_io::u8string_view custom_name;  // The name used for the data segment
-
         ::uwvm2::parser::wasm::standard::wasm1::type::global_type type{};
         initializer_exp init{};
     };

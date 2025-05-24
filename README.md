@@ -8,7 +8,7 @@
         <img src="https://img.shields.io/github/actions/workflow/status/UlteSoft/uwvm2/ci.yml?branch=master" alt="github-ci" />
     </a>
     <a href="LICENSE.md">
-        <img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" , alt="License" />
+        <img src="https://img.shields.io/badge/License-ASHP%201.0-green.svg" , alt="License" />
     </a>
     <a href="https://en.cppreference.com">
         <img src="https://img.shields.io/badge/language-c++26-blue.svg" ,alt="cppreference" />
@@ -28,6 +28,7 @@ Supports over 100 triplet platforms, including DOS series, POSIX series, Windows
 ## How to build
 * Windows (aka. unknown-windows-msvc). See [windows.md](documents/how-to-build/windows.md)
 * MinGW (aka. unknown-windows-gnu, unknown-w64-mingw32). See [mingw.md](documents/how-to-build/mingw.md)
-* linux (aka. unknown-linux-unknown). See [linux.md](documents/how-to-build/linux.md)
+* Linux (aka. unknown-linux-unknown). See [linux.md](documents/how-to-build/linux.md)
 * Darwin (aka. unknown-apple-darwin). See [darwin.md](documents/how-to-build/darwin.md)
 * FreeBSD (aka. unknown-freebsd(Version)). See [freebsd.md](documents/how-to-build/freebsd.md)
+* WASM-WASI (aka. [wasm32|wasm64]-[wasip1|wasip2]-(threads)). See [freebsd.md](documents/how-to-build/wasm-wasi.md)

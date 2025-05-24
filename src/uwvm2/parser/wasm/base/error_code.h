@@ -1,14 +1,14 @@
-/*************************************************************
+﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-04-27
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -88,7 +88,11 @@ UWVM_MODULE_EXPORT namespace uwvm2::parser::wasm::base
         global_type_cannot_find_valtype,
         global_type_illegal_valtype,
         global_type_cannot_find_mut,
-        global_type_illegal_mut
+        global_type_illegal_mut,
+        invalid_func_count,
+        func_section_resolved_exceeded_the_actual_number,
+        func_section_resolved_not_match_the_actual_number,
+        size_exceeds_the_maximum_value_of_size_t
     };
 
     /// @brief Additional information provided by wasm error, no more than 8 bytes

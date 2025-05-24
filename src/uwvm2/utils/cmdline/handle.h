@@ -1,14 +1,14 @@
 ﻿/*************************************************************
  * Ultimate WebAssembly Virtual Machine (Version 2)          *
  * Copyright (c) 2025-present UlteSoft. All rights reserved. *
- * Licensed under the APL-2 License (see LICENSE file).      *
+ * Licensed under the ASHP-1.0 License (see LICENSE file).   *
  *************************************************************/
 
 /**
  * @author      MacroModel
  * @version     2.0.0
  * @date        2025-03-25
- * @copyright   APL-2 License
+ * @copyright   ASHP-1.0 License
  */
 
 /****************************************
@@ -233,7 +233,10 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::cmdline
                 default: return false;
             }
         }
-        else { return true; }
+        else
+        {
+            return true;
+        }
     }
 
     /// @brief this function expand all parameter raw name and it alias name and check whether they are valid
@@ -474,6 +477,9 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::cmdline
         }
         else
         {
+            // Because the char8_t size is always equal to ::std::byte
+            static_assert(sizeof(char8_t) == sizeof(::std::byte));
+
             auto const i{reinterpret_cast<::std::byte const*>(str.data())};
             crc32c.update(i, i + str.size());
         }
@@ -499,18 +505,27 @@ UWVM_MODULE_EXPORT namespace uwvm2::utils::cmdline
                     // If the above scenario is defined, there will never be a hit here.
                     ::fast_io::unreachable();
                 }
-                else [[unlikely]] { return nullptr; }
+                else [[unlikely]]
+                {
+                    return nullptr;
+                }
             }
             else
             {
                 if(str == htval.str) [[likely]] { return htval.para; }
-                else [[unlikely]] { return nullptr; }
+                else [[unlikely]]
+                {
+                    return nullptr;
+                }
             }
         }
         else
         {
             if(str == htval.str) [[likely]] { return htval.para; }
-            else [[unlikely]] { return nullptr; }
+            else [[unlikely]]
+            {
+                return nullptr;
+            }
         }
     }
 
